@@ -1,0 +1,60 @@
+
+.circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+#red {
+    background-color: red;
+}
+
+#blue {
+    background-color: blue;
+}
+
+#green {
+    background-color: green;
+}
+
+.finish-line {
+    width: 100%;
+    position: inherit;
+    /* position: absolute; */
+    top: 80%;
+    border: 3px solid #FEBC38;
+}
+
+.finished {
+    border-color: lightgreen;
+}
+
+#finish {
+    /* top: 80px; */
+    height: 38px;
+}
+
+
+.dragbox{
+    /* width: 10%; */
+    top: 100%;
+    position: center;
+}
+
+.topLeft {
+    position: relative;
+    left: 16px;
+    font-size: 18px;
+    width: 50%;
+    text-align: left;
+    float: left;
+}
+
+.topRight {
+    position: relative;
+    right: 16px;
+    font-size: 18px;
+    width: 50%;
+    text-align: right;
+    float: right;
+}

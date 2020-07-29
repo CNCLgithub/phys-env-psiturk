@@ -1,0 +1,73 @@
+#full-container {
+    margin: 0 auto;
+    width: 72vmin;
+}
+
+#full-container-sm {
+    margin: 0 auto;
+    width: 75vmin;
+}
+
+#moviescreen {
+    text-align: center;
+}
+
+#slider_div {
+  width: 75vmin;
+}
+
+#register {
+    width: 75vmin;
+}
+
+#qspan {
+    font-weight: bold;
+}
+
+#centerdiv {
+    margin: 0 auto;
+    text-align: center;
+}
+
+#lab-div {
+}
+#lab-right {
+    text-align: right;
+    width: 40%;
+    float: left;
+    font-size: 75%;
+}
+#lab-left {
+    text-align: left;
+    width: 40%;
+    float: left;
+    font-size: 75%;
+}
+#lab-center {
+    text-align: center;
+    width: 20%;
+    float: left;
+    font-size: 75%;
+}
+
+.incenterdiv {
+    margin: 0 auto;
+}
+
+.movieobj {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    margin-left: auto;
+    margin-right: auto;
+    /* width: 80vmin; */
+    /* height: 45vmin; */
+}
+
+.movieobj_sm {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    width: 80vmin;
+    height: 45vmin;
+}

@@ -1,0 +1,103 @@
+@import url(http://fonts.googleapis.com/css?family=Crimson+Text:400,600italic);
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+@import url(http://fonts.googleapis.com/css?family=Exo+2:200,300,400);
+
+
+h1.questionnaireheader {
+        font-family: "Exo 2";
+        font-size: 20pt;
+				text-align: center;
+        padding: 40px;
+
+}
+
+/* Questionnaire */
+
+input {
+        width: 200px;
+        height: 50px;
+        font-size: 22pt;
+}
+
+.questionnaire {
+    text-align: center;
+}
+
+.questionnaire /*.continue*/ {
+    margin: 0 auto;
+    margin-top: 20px;
+    padding: 40px;
+
+}
+
+.questionnaire h1 {
+    text-align: center;
+}
+
+.questionnaire p {
+    text-align: left;
+}
+
+.questionnaire #warning {
+    color: red;
+    font-weight: bold;
+}
+
+.questionnaire table {
+    margin: 0 auto;
+
+    /* Border stuff: */
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0.25em;
+    border: none;
+}
+
+.questionnaire tr {
+    display: block;
+    border-bottom: 1px dashed white;
+}
+
+.questionnaire tr:last-child { border: 0; }
+
+.questionnaire td {
+    padding-right: 0.25em;
+    vertical-align: middle;
+    border-width: 0 1px;
+    border: none;
+    margin: 20px;
+    padding-bottom: 10px;
+}
+.questionnaire td:first-child, td + td {border-left: 0; }
+.questionnaire td:last-child { padding-right: 0; border-right: 0; }
+
+.answer {
+        text-align: left;
+	padding-left: 3em;
+}
+
+.questionnaire .questiontext {
+	vertical-align: top;
+        width: 300px;
+        margin: 20px;
+        font-size: 1.0em;
+}
+.questiontext em {
+	font-size: 70%;
+}
+.questionnaire textarea {
+    width: 320px;
+    height: 130px;
+}
+.questionnaire form {
+    text-align: right;
+}
+.questionnaire ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.questiontext {
+	text-align: right;
+}

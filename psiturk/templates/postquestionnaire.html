@@ -1,0 +1,117 @@
+<div id="container-questionnaire">
+    <h1>Task Complete</h1>
+
+    <hr />
+
+    <p>You are finished!. Thank you for your contributions to science.</p>
+
+    <div class="instructions well">
+
+        <form id="postquiz" action="debrief" method="post">
+        
+         <!-- beginning of a question -->
+            <div class="row question">
+                <div class="col-md-8">
+                    Did the videos run clearly and smoothly?
+                </div>
+                <div class="col-md-4">
+                    <select id="vid_quality" name="vid_quality">
+                        <option value="Yes" SELECTED>Yes</option>
+                        <option value="No">No</option>
+
+                    </select>
+                </div>
+            </div>
+            <!-- end of a question -->
+
+        
+        
+            <!-- beginning of a question -->
+            <div class="row question">
+                <div class="col-md-8">
+                    On a scale of 1-10 (where 10 is the most engaged), please rate how <b>ENGAGING</b> you found the learning task:
+                </div>
+                <div class="col-md-4">
+                    <select id="engagement" name="engagement">
+                        <option value="10">10 - Very engaging</option>
+                        <option value="9">9</option>
+                        <option value="8">8</option>
+                        <option value="7">7</option>
+                        <option value="6">6</option>
+                        <option value="5" SELECTED>5 - Moderately</option>
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                        <option value="0">0 - Not engaged</option>
+                    </select>
+                </div>
+            </div>
+            <!-- end of a question -->
+
+
+            <!-- beginning of a question -->
+            <div class="row question">
+                <div class="col-md-8">
+                    On a scale of 1-10 (where 10 is the most difficult), please rate how <b>DIFFICULT</b> you found the learning task:
+                </div>
+                <div class="col-md-4">
+                    <select id="difficulty" name="difficulty">
+                        <option value="10">10 - Very difficult</option>
+                        <option value="9">9</option>
+                        <option value="8">8</option>
+                        <option value="7">7</option>
+                        <option value="6">6</option>
+                        <option value="5" SELECTED>5 - Moderately difficult</option>
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                        <option value="0">0 - Not difficult at all</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- end of a question -->
+        
+        
+            <!-- beginning of a question -->
+            <div class="row question">
+                <div class="col-md-8">
+                    You will get paid regardless of your answer to this question. Did you ever switch tabs during the task, open another application, or otherwise not watch some or all of the videos?
+                </div>
+                <div class="col-md-4">
+                    <select id="switch_tabs" name="switch_tabs">
+                        <option value="Yes">Yes</option>
+                        <option value="No" SELECTED>No</option>
+
+                    </select>
+                </div>
+            </div>
+            <!-- end of a question -->
+
+            <!-- beginning of a question -->
+            Are there any other comments you would like to provide? <br>
+            <textarea name="comments" rows="4" cols="100" id="comments" placeholder="Enter answer here"></textarea>
+            <!-- end of a question -->
+        </form>
+    </div>
+
+    <hr />
+
+    <div class="instructionsnav">
+        <div class="row">
+            <div class="col-xs-2">
+            </div>
+            <div class="col-xs-7">
+            </div>
+            <div class="col-xs-3">
+                <button type="button" id="next" value="next" class="btn btn-primary btn-lg continue">
+                    Continue <span class="glyphicon glyphicon-arrow-right"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</div>
