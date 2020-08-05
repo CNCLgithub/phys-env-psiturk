@@ -104,7 +104,7 @@ function textBox() {
 	return `<div style="width:${PAGESIZE * 1.15}px;margin:auto;text-align:center">` +
     "<span id=\"qspan\">Write a description of the video </span> " +
     "<br>" +
-    `<input id="text_box" type="text" name="inputbox" value="" style="font-size:14pt; width: ${PAGESIZE*1.05}px">`
+    `<input id="text_box" type="text" name="inputbox" value="" style="font-size:14pt; width: ${PAGESIZE*1.05}px"  autocomplete="off">`
     "</div>";
 };
 
@@ -379,7 +379,6 @@ var InstructionRunner = function(condlist) {
   // start the loop
   do_page(0);
 };
-
 
 /*********
  * Quiz  *
