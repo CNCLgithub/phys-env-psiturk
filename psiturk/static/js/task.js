@@ -62,6 +62,7 @@ function shuffle(array) {
 };
 
 
+
 var black_div = function() {
   return '<div style=\"background-color: black; width: 1280px; height: 720px;\"></div>'
 }
@@ -321,7 +322,7 @@ var InstructionRunner = function(condlist) {
     
     [
       "Here is an example of a dynamic scene you may see.<br>",
-      "movie", "final_occlusion19.mp4", false // ADD THE EXAMPLE VIDEO
+      "movie", "collision/success/ballplank/final_collision111.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
