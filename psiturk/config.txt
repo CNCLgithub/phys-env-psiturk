@@ -22,10 +22,10 @@ cutoff_time = 30
 logfile = server.log
 loglevel = 2
 debug = true
-login_username = cncl_lab
-login_pw = R!C4Sk;zhTXuk"wXMQJ;^I24w 
+#login_username = cncl_lab
+#login_pw = ''
 threads = auto
-secret_key = 'this is my secret key which is hard to guess, i should change this'
+#secret_key = 'this is my secret key which is hard to guess, i should change this'
 #certfile = <path_to.crt>
 #keyfile = <path_to.key>
 
