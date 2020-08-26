@@ -7,7 +7,6 @@
 // Initalize psiturk object
 var psiTurk = new PsiTurk(uniqueId, adServerLoc, mode);
 
-
 var mycondition = condition; 
 
 // Names of elements used in the experiment
@@ -108,6 +107,9 @@ function textBox() {
     `<input id="text_box" type="text" name="inputbox" value="" style="font-size:14pt; width: ${PAGESIZE*1.05}px"  autocomplete="off">`
     "</div>";
 };
+
+// attempt to run the python code
+
 
 
 /********************
@@ -565,6 +567,14 @@ $(window).load(function() {
 
   // Load in the conditions
   // TEMPORARY
+  function create_conds() {
+  $.ajax({
+	type: "POST",
+	url: '/create_tasklist',
+	aync: false,
+	});
+  
+}
 
   function do_load() {
     $.ajax({
@@ -583,7 +593,8 @@ $(window).load(function() {
       }
     });
   };
-
+    
+  create_conds();
   do_load();
 
 });

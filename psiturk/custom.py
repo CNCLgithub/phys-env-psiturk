@@ -1,5 +1,9 @@
 # this file imports custom routes into the experiment server
 
+import numpy as np
+import json
+import os
+
 from flask import Blueprint, render_template, request, jsonify, Response, abort, current_app
 from jinja2 import TemplateNotFound
 from functools import wraps
@@ -98,4 +102,63 @@ def compute_bonus():
 	except:
 		abort(404)  # again, bad to display HTML, but...
 
+@custom_code.route('/create_tasklist', methods=['POST'])      
+def create_tasklist():
+    try:           
+        data_dir='static/data/'
+        level1_dir=data_dir+"/movies/"
+
+        files=[]
+        for folder in os.listdir(level1_dir):
+            level2_dir= level1_dir + folder + '/'
+
+            try:
+
+                if 'success' in os.listdir(level2_dir):
+
+                    for subfolder in os.listdir(level2_dir):
+
+                        try:
+                            level3_dir=level2_dir + subfolder + '/'
+
+                            if '.mp4' in os.listdir(level3_dir)[0]:
+                                 # Get the successes and failures
+                                potential_files=[folder + '/' + subfolder + '/' + i for i in os.listdir(level3_dir)]
+                                np.random.shuffle(potential_files)
+                                files+=(potential_files[:5])
+
+                            else:
+                                for subsubfolder in os.listdir(level3_dir):  
+
+                                    try:
+                                        level4_dir=level3_dir + subsubfolder + '/'
+                                        potential_files=[folder + '/' + subfolder + '/' + subsubfolder + '/' + i for i in os.listdir(level4_dir)]
+                                        np.random.shuffle(potential_files)
+                                        files+=(potential_files[:5])
+
+                                    except:
+                                        None
+
+                        except:
+                            None
+
+
+                else:
+                    # If it can't faio, just grab 5
+                    potential_files=[folder + '/' + i for i in os.listdir(level2_dir)]
+                    np.random.shuffle(potential_files)
+                    files+=(potential_files[:5])
+            except:
+                None
+
+        data=[files]
+
+        with open('static/data/condlist.json','w') as outfile:
+            json.dump(data,outfile,indent=4)
+
+        outfile.close()
     
+    except:
+        abort(404) 
+        
+create_tasklist()
