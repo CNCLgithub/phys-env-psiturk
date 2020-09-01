@@ -13,19 +13,19 @@ browser_exclude_rule = MSIE, mobile, tablet, Safari
 
 [Database Parameters]
 database_url = sqlite:///participants.db
-table_name = phys_event
+table_name = exp1_debug
 
 [Server Parameters]
 host = 0.0.0.0
-port = 22365
+port = 22362
 cutoff_time = 30
 logfile = server.log
 loglevel = 2
 debug = true
-#login_username = cncl_lab
-#login_pw = ''
+#login_username = TODOQ
+#login_pw = TODO
 threads = auto
-#secret_key = 'this is my secret key which is hard to guess, i should change this'
+#secret_key = ''
 #certfile = <path_to.crt>
 #keyfile = <path_to.key>
 
@@ -43,3 +43,4 @@ launch_in_sandbox_mode = true
 
 use_psiturk_ad_server = true
 ad_location = false
+
