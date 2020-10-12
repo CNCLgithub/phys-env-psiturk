@@ -88,11 +88,11 @@ def compute_bonus():
 		user_data = loads(user.datastring) # load datastring from JSON
 		bonus = 0
 
-		for record in user_data['data']: # for line in data file
-			trial = record['trialdata']
-			if trial['phase']=='TEST':
-				if trial['hit']==True:
-					bonus += 0.02
+	#	for record in user_data['data']: # for line in data file
+	#		trial = record['trialdata']
+	#		if trial['phase']=='TEST':
+	#			if trial['hit']==True:
+	#				bonus += 0.02
 		user.bonus = bonus
 		db_session.add(user)
 		db_session.commit()
