@@ -14,6 +14,7 @@ var MOVIESCREEN = "moviescreen";
 var DRAGBOX = "dragbox"
 var NEXTBUTTON = "nextbutton";
 var RELOAD = "reloadbutton";
+var RES_SLIDER = "trialRes";
 var INS_INSTRUCTS = "instruct";
 var INS_HEADER = "instr_header";
 var PAGESIZE = 500;
@@ -100,17 +101,13 @@ var make_mov = function(movname, is_intro, has_ctr) {
   return ret;
 };
 
-function textBox() {
-	return `<div style="width:${PAGESIZE * 1.15}px;margin:auto;text-align:center">` +
-    "<span id=\"qspan\">Write a description of the video </span> " +
-    "<br>" +
-    `<input id="text_box" type="text" name="inputbox" value="" style="font-size:14pt; width: ${PAGESIZE*1.05}px"  autocomplete="off">`
-    "</div>";
-};
-
-// attempt to run the python code
-
-
+//function textBox() {
+//	return `<div style="width:${PAGESIZE * 1.15}px;margin:auto;text-align:center">` +
+//    "<span id=\"qspan\">Write a description of the video </span> " +
+//    "<br>" +
+//    `<input id="text_box" type="text" name="inputbox" value="" style="font-size:14pt; width: ${PAGESIZE*1.05}px"  autocomplete="off">`
+//    "</div>";
+//};
 
 /********************
  * HTML manipulation
@@ -134,6 +131,16 @@ function scaleSlider() {
 };
 
 
+function responseSlider() {
+  return `<span id="qspan">Was there a distortion in the video?</span>` +
+    `<div id="lab-div">` +
+    `<div id="lab-left"><i>Confident No</i></div>` +
+    `<div id="lab-center"><i>Unsure</i></div>` +
+    `<div id="lab-right"><i>Confident Yes</i></div>` +
+    `</div>` +
+    `<input id="response_slider" type="range" min="0" max="100" default="50" width="960" disabled/>`
+};
+
 class Page {
 
   // Handles media presentation and scale handling.
@@ -152,6 +159,7 @@ class Page {
     this.instruct = document.getElementById(INS_INSTRUCTS);
     this.scale_region = document.getElementById("scale_region");
     this.response = document.getElementById("response_region");
+    this.choice = document.getElementById(RES_SLIDER);
     this.showResponse = show_response;
     this.next = document.getElementById(NEXTBUTTON);
     this.next.disable = true;
@@ -176,8 +184,9 @@ class Page {
 
   // Returns the placement of each color scaled from [0, 1]
   retrieveResponse() {
-    var textdata = document.getElementById("text_box");
-    var rep = [textdata.value]
+    var confidence = document.getElementById("response_slider");
+    var rep = [confidence.value]
+        
     return rep
   }
   
@@ -230,20 +239,20 @@ class Page {
   }
   
 addResponse() {
-    this.response.innerHTML = textBox();
+    this.response.innerHTML = responseSlider();
   }
 
   // The form will automatically enable the next button
   enableResponse() {
-	var box = document.getElementById("text_box");
+	var box = document.getElementById("response_slider");
     box.disabled = false;
-   	box.onkeydown = function() { 
+   	box.onmousedown = function() { 
       allowNext();
     };
   }
 
   disableResponse() {
-    document.getElementById("text_box").disabled = true;
+    document.getElementById("response_slider").disabled = true;
   }
 
   clearResponse() {
@@ -317,18 +326,23 @@ var InstructionRunner = function(condlist) {
 
   var instructions = [
     [
-      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate what you believe just happened in the video by writing a description in a text box.<br><br>" +
+      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate detect whether or not the video had a distortion in it, and your confidence in that decision.<br><br>" +
         "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
       "image", "objects.png", false
     ],
     
     [
-      "Here is an example of a dynamic scene you may see.<br>",
+      "Here is an example of a dynamic scene in which there is no distortion.<br>",
       "movie", "collision/success/ballplank/final_collision111.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
-      "These videos will start automatically and will only play once. You will not be able to pause the videos. There is a short countdown before each video, which you do not have to describe. You will be able to record your response by typing after the video has completed.<br>" +
+      "Here is an example of a dynamic scene in which there is a distortion (watch carefully!)<br>",
+      "movie", "collision/success/ballplank/final_collision111.mp4", false // ADD THE EXAMPLE VIDEO
+    ],
+    
+    [
+      "These videos will start automatically and will only play once. You will not be able to pause the videos. There is a short countdown before each video, which will be constant across videos. You will be able to record your response only after the video has completed. To submit your answer, you will drag a slider ranging from 'Confident No' distortion to 'Confident Yes' distortion.<br>" +
         "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted your response.",
       "", "", false
     ],
