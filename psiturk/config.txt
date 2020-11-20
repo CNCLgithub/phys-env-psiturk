@@ -16,7 +16,7 @@ database_url = sqlite:///participants.db
 table_name = phys_events
 
 [Server Parameters]
-host = 0.0.0.0
+host = localhost
 port = 22367
 cutoff_time = 90
 logfile = server.log
