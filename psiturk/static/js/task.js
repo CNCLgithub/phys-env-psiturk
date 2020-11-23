@@ -23,6 +23,8 @@ var IMG_TIME = 100 // time to display images in ms
 
 var SCALE_COMPLETE = false; // users do not need to repeat scaling
 
+var PROLIFIC_ID = "";
+
 // All pages to be loaded
 var pages = [
   "instructions/instructions.html",
@@ -39,6 +41,32 @@ var instructionPages = [ // add as a list as many pages as you like
   "instructions/instruct-1.html"
 ];
 
+
+
+/****************
+ * Prolific ID  *
+ ****************/
+
+var ProlificID = function(condlist) {
+    while (true) {
+        PROLIFIC_ID = prompt("Please enter Prolific ID to proceed:");
+        // a small check on length
+        if (PROLIFIC_ID.length == 24) {
+            psiTurk.recordTrialData({
+                'prolific_id': PROLIFIC_ID,
+            });
+            console.log("prolific_id recorded:", PROLIFIC_ID);
+            InstructionRunner(condlist);
+            return;
+        }
+        alert("Make sure you enter the Prolific ID correctly, please try again.");
+    }
+}
+
+
+/****************
+ * Functions  *
+ ****************/
 
 // used to shuffle the array of trials
 function shuffle(array) {
@@ -60,7 +88,6 @@ function shuffle(array) {
 
   return array;
 };
-
 
 
 var black_div = function() {
@@ -94,20 +121,14 @@ var make_mov = function(movname, is_intro, has_ctr) {
   var ctr = "";
   var fmovnm = "static/data/movies/" + movname;
   var foggnm = fmovnm.substr(0, fmovnm.lastIndexOf('.')) + ".ogg";
-  var ret = `<video id="thisvideo" class="${mcl}\${ctr}" width="${PAGESIZE*1.05}px" height="${PAGESIZE*1.05}px">` +
+  var ret = //`<span id="qspan">Press spacebar when you see a video distortion</span>` +
+   `<video id="thisvideo" class="${mcl}\${ctr}" width="${PAGESIZE*1.05}px" height="${PAGESIZE*1.05}px">` +
       `<source src="${fmovnm}" type="video/mp4">` +
       `<source src="${foggnm}" type="video/ogg">` +
       `Your browser does not support HTML5 mp4 video.</video>`;
   return ret;
 };
 
-//function textBox() {
-//	return `<div style="width:${PAGESIZE * 1.15}px;margin:auto;text-align:center">` +
-//    "<span id=\"qspan\">Write a description of the video </span> " +
-//    "<br>" +
-//    `<input id="text_box" type="text" name="inputbox" value="" style="font-size:14pt; width: ${PAGESIZE*1.05}px"  autocomplete="off">`
-//    "</div>";
-//};
 
 /********************
  * HTML manipulation
@@ -132,14 +153,51 @@ function scaleSlider() {
 
 
 function responseSlider() {
-  return `<span id="qspan">Was there a distortion in the video?</span>` +
+  return `<span id="qspan">How confident are you in your response?</span>` +
     `<div id="lab-div">` +
-    `<div id="lab-left"><i>Confident No</i></div>` +
+    `<div id="lab-left"><i>Not confident at all</i></div>` +
     `<div id="lab-center"><i>Unsure</i></div>` +
-    `<div id="lab-right"><i>Confident Yes</i></div>` +
+    `<div id="lab-right"><i>Very confident</i></div>` +
     `</div>` +
-    `<input id="response_slider" type="range" min="0" max="100" default="50" width="960" disabled/>`
+    `<input id="response_slider" type="range" min="0" max="100" default="50" width="${PAGESIZE*1.05}px" disabled/>`
 };
+
+
+function tempAlert(msg,duration) {
+ var el = document.createElement("div");
+ 
+ 	el.setAttribute("style","position:absolute;top:20%;left:50%;background-color:red;");
+ 	el.innerHTML = msg;
+ 	
+ 	setTimeout(function(){
+  	el.parentNode.removeChild(el);
+ 	},duration);
+ 	
+ 	document.body.appendChild(el);
+}
+
+
+function draw(duration) {
+
+  var video = document.getElementById('thisvideo');
+  var x = document.createElement("CANVAS");
+  var ctx = x.getContext("2d");
+  
+  //ctx.drawImage(video, 0, 0, video.videoWidth,video.videoHeight);
+  
+  ctx.strokeStyle = "#FF0000";
+  ctx.strokeRect(0,0,video.videoWidth,video.videoHeight);
+
+
+  setTimeout(function(){
+  	x.parentNode.removeChild(x);
+  	},duration);
+    
+   document.body.appendChild(x);
+ 
+}
+
+
 
 class Page {
 
@@ -165,6 +223,7 @@ class Page {
     this.next.disable = true;
     this.mvsc = document.getElementById(MOVIESCREEN);
     this.reloadbtn = document.getElementById(RELOAD);
+    this.spacebar = [];
   }
 
   // Loads content to the page
@@ -175,7 +234,16 @@ class Page {
     this.next.onclick = function() {
       callback();
     };
+    
+	// preventing from scrolling on space bar click
+	window.addEventListener('keydown', function(e) {
+		if(e.keyCode == 32 && e.target == document.body) {
+			e.preventDefault();
+		}
+	});
+	
     this.addText();
+    
     // If there is a slider, then progression is contingent
     // on complete presentation of the media.
     this.addMedia();
@@ -188,6 +256,11 @@ class Page {
     var rep = [confidence.value]
         
     return rep
+  }
+  
+  // Return the spacebar presses
+  	get_spacebar() {
+        return this.spacebar;
   }
   
   
@@ -259,15 +332,48 @@ addResponse() {
     this.scale_region.innerHTML = "";
     this.response.innerHTML = "";
   }
+  
+
 
   // plays movie
   showMovie() {
 
+	var starttime = new Date().getTime();
+	
     this.next.disabled = true;
     var sc = document.getElementById(MOVIESCREEN);
     var mov = document.getElementById('thisvideo');
 
     let me = this;
+
+	// adding spacebar handling after release
+	document.onkeyup = function(event){
+		if (event.keyCode === 32) {
+			event.preventDefault();
+			
+			var time = new Date().getTime() - starttime;
+			if (time > 1000) {
+				// tell them
+				//tempAlert('space',500)
+			
+				// draw a border
+				draw(500) 
+			 
+				// record key press
+				me.spacebar.push(time); 
+                    
+				// change the border momentarily
+            	//mov.style.border = "thick solid red";
+                
+            	// revert to no border after 500 ms
+            	//setTimeout(function(){mov.style.border = ""; }, 500);
+               
+                //console.log(self.spacebar);
+              	//  }
+              }
+            }
+    };
+    
 
     // The "next" botton will only activate after recording a response
     if (this.showResponse) {
@@ -279,6 +385,7 @@ addResponse() {
         me.addResponse();
         me.enableResponse();
       };
+      
     } else {
       // Otherwise allow next once movie is complete
       var movOnEnd = function() {
@@ -291,9 +398,15 @@ addResponse() {
     mov.oncanplaythrough = function() {
       mov.play();
     };
+    
     mov.onended = movOnEnd;
+    
+    
   }
+  
+  
 
+// shows an image
   showImage() {
     if (this.showResponse) {
       this.next.disabled = true;
@@ -325,42 +438,51 @@ var InstructionRunner = function(condlist) {
   // 4: Whether to show the response div (true/false) // not sure what this means
 
   var instructions = [
-    [
-      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate detect whether or not the video had a distortion in it, and your confidence in that decision.<br><br>" +
-        "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
-      "image", "objects.png", false
-    ],
-    
-    [
-      "Here is an example of a dynamic scene in which there is no distortion.<br>",
-      "movie", "collision/success/ballplank/final_collision111.mp4", false // ADD THE EXAMPLE VIDEO
-    ],
-    
-    [
-      "Here is an example of a dynamic scene in which there is a distortion (watch carefully!)<br>",
-      "movie", "collision/success/ballplank/final_collision111.mp4", false // ADD THE EXAMPLE VIDEO
-    ],
-    
-    [
-      "These videos will start automatically and will only play once. You will not be able to pause the videos. There is a short countdown before each video, which will be constant across videos. You will be able to record your response only after the video has completed. To submit your answer, you will drag a slider ranging from 'Confident No' distortion to 'Confident Yes' distortion.<br>" +
-        "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted your response.",
-      "", "", false
-    ],
-    
-    [
+  
+      [
       "<b>Before we begin, follow the instructions below to setup your display.</b><br><hr />" +
         "<p>Please sit comfortably in front of you monitor and outstretch your arm holding a credit card (or a similary sized ID card). <br>" +
         "<p>Adjust the size of the image using the slider until its <strong>width</strong> matches the width of your credit card (or ID card).",
       "scale", "generic_cc.png", false
     ],
-    
+  
     [
-      "Please maintain this arm-length distance from your monitor for the duration of this experiment (20-25 minutes).",
+      "Please maintain this arm-length distance from your monitor for the duration of this experiment (30-45 minutes).",
       "text", "", false
     ],
+  
+  
+    [
+      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate detect whether or not the video has a distortion in it (in the form of a momentary pause), and your confidence in that decision.<br><br>" +
+        "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
+      "image", "objects.png", false
+    ],
     
-    ["After a short check to make sure that you have understood the instructions, " +
-      "you will have to make your judgments about " + nTrials +  " trials.<br>", // name the number of trials
+    [
+      "We will first show you two videos as examples and for practice. Your task when watching these videos is to press a space bar when you see a short pause in the video. Not every video will have a pause, in which case you should not press the spacebar.",
+      "", "", false
+    ],
+    
+    
+    [
+      "Here is an example of a dynamic scene in which there is no pause.<br>",
+      "movie", "intact/collision_collision1.mp4", false // ADD THE EXAMPLE VIDEO
+    ],
+    
+    [
+      "Here is an example of a dynamic scene in which there is a pause (watch carefully!)<br>",
+    "movie", "noboundary/collision_collision1_noboundary_shorter.mp4", false // ADD THE EXAMPLE VIDEO
+    ],
+    
+    [
+      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. You should press the spacebar when you think you see a short pause in the video. After the video ends, you will be able to record your confidence response. To submit your answer, you will drag a slider ranging from 'Not very confident' to 'Very confident' that there was a distortion.<br>" +
+        "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted your confidence response.",
+      "", "", false
+    ],
+    
+    
+    ["We will now have a short check to make sure that you have understood the instructions." +
+      "Then you will have to make your judgments about " + nTrials +  " trials.<br>", // name the number of trials
       "", "", false
     ],
 
@@ -452,44 +574,64 @@ var quiz = function(goBack, goNext) {
  **************/
 
 var Experiment = function(triallist) {
+
   psiTurk.showPage('stage.html');
+  
   var triallist = shuffle(triallist);
+  
   var screen = document.getElementById(MOVIESCREEN);
   var button = document.getElementById(NEXTBUTTON);
   var reloadbtn = document.getElementById(RELOAD);
+  
   var curidx = 0;
   var starttime = -1;
 
   // uses `Page` to show a single trial
   var runTrial = function(curIdx) {
+  
     // We've reached the end of the experiment
     if (curIdx === triallist.length) {
       end();
     }
+    
     var flnm = triallist[curIdx];
+    
     //show_progress(curIdx);
+    
     starttime = new Date().getTime();
-    var pg = new Page("", "movie", flnm, true);
+    var pg = new Page("Press the spacebar when a pause occurs", "movie", flnm, true);
+    
     // `Page` will record the subject responce when "next" is clicked
     // and go to the next trial
+    
     pg.showPage(
       function() {
+      	
+      	
         register_response(pg, curIdx);
+        
         // Clears slider from screen
         pg.clearResponse();
         runTrial(curIdx + 1);
+        
       }
     );
   };
+  
+
 
   // Record the subject's response for a given trial.
   var register_response = function(trialPage, cIdx) {
-    var rt = new Date().getTime() - starttime;
+  
+    //var rt = new Date().getTime() - starttime;
     var rep = trialPage.retrieveResponse();
+    var spaces = trialPage.get_spacebar();
+    
     psiTurk.recordTrialData({
       'TrialName': triallist[cIdx],
-      'Response': rep[0],
-      'ReactionTime': rt,
+      'Spacebar': spaces,
+      'Confidence': rep[0],
+      //'ReactionTime': rt,
       'IsInstruction': false,
       'TrialOrder': cIdx
     });
@@ -579,8 +721,7 @@ var currentview;
 
 $(window).load(function() {
 
-  // Load in the conditions
-  // TEMPORARY
+  // Load in the conditions which have been balanced off-screen
   function create_conds() {
   $.ajax({
 	type: "POST",
@@ -598,6 +739,7 @@ $(window).load(function() {
       success: function(data) {
         condlist = shuffle(data[condition]);
         InstructionRunner(condlist);
+        ProlificID(condlist);
       },
       error: function() {
         setTimeout(500, do_load)
