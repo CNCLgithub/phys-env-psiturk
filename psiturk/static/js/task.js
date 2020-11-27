@@ -162,7 +162,7 @@ function responseSlider() {
     `<input id="response_slider" type="range" min="0" max="100" default="50" width="${PAGESIZE*1.05}px" disabled/>`
 };
 
-
+//temp alert
 function tempAlert(msg,duration) {
  var el = document.createElement("div");
  
@@ -176,27 +176,19 @@ function tempAlert(msg,duration) {
  	document.body.appendChild(el);
 }
 
+function outline() {
 
-function draw(duration) {
+	  var canvas = document.createElement("canvas");        
+      canvas.style.borderTop = '2px solid red';
 
-  var video = document.getElementById('thisvideo');
-  var x = document.createElement("CANVAS");
-  var ctx = x.getContext("2d");
-  
-  //ctx.drawImage(video, 0, 0, video.videoWidth,video.videoHeight);
-  
-  ctx.strokeStyle = "#FF0000";
-  ctx.strokeRect(0,0,video.videoWidth,video.videoHeight);
+      var parentDiv = document.getElementById(MOVIESCREEN);
+      parentDiv.appendChild(canvas);
 
-
-  setTimeout(function(){
-  	x.parentNode.removeChild(x);
-  	},duration);
-    
-   document.body.appendChild(x);
- 
+      setTimeout(function(){
+      canvas.parentNode.removeChild(canvas);
+      },500);
+      
 }
-
 
 
 class Page {
@@ -334,7 +326,6 @@ addResponse() {
   }
   
 
-
   // plays movie
   showMovie() {
 
@@ -352,24 +343,16 @@ addResponse() {
 			event.preventDefault();
 			
 			var time = new Date().getTime() - starttime;
-			if (time > 1000) {
+			if (time > 500) {
 				// tell them
 				//tempAlert('space',500)
-			
-				// draw a border
-				draw(500) 
-			 
-				// record key press
-				me.spacebar.push(time); 
+
+				 // outline the video
+				 outline();
+				 
+				 // save the data
+				 me.spacebar.push(time); 
                     
-				// change the border momentarily
-            	//mov.style.border = "thick solid red";
-                
-            	// revert to no border after 500 ms
-            	//setTimeout(function(){mov.style.border = ""; }, 500);
-               
-                //console.log(self.spacebar);
-              	//  }
               }
             }
     };
