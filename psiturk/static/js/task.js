@@ -122,7 +122,7 @@ var make_mov = function(movname, is_intro, has_ctr) {
   var fmovnm = "static/data/movies/" + movname;
   var foggnm = fmovnm.substr(0, fmovnm.lastIndexOf('.')) + ".ogg";
   var ret = //`<span id="qspan">Press spacebar when you see a video distortion</span>` +
-   `<video id="thisvideo" class="${mcl}\${ctr}" width="${PAGESIZE*1.05}px" height="${PAGESIZE*1.05}px">` +
+   `<video id="thisvideo" style="border: solid transparent; margin-top: ${PAGESIZE*.2}px; margin-bottom: ${PAGESIZE*.2}px;" class="${mcl}\${ctr}" width="${PAGESIZE*1.05}px">` +
       `<source src="${fmovnm}" type="video/mp4">` +
       `<source src="${foggnm}" type="video/ogg">` +
       `Your browser does not support HTML5 mp4 video.</video>`;
@@ -180,6 +180,7 @@ function tempAlert(msg,duration) {
 function draw(duration) {
 
   var video = document.getElementById('thisvideo');
+  video.style.borderColor = "red";
   var x = document.createElement("CANVAS");
   var ctx = x.getContext("2d");
   
@@ -190,6 +191,7 @@ function draw(duration) {
 
 
   setTimeout(function(){
+    video.style.borderColor = "transparent";
   	x.parentNode.removeChild(x);
   	},duration);
     
