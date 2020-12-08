@@ -27,6 +27,8 @@ myauth = PsiTurkAuthorization(config)  # if you want to add a password protect r
 custom_code = Blueprint('custom_code', __name__, template_folder='templates', static_folder='static')
 
 
+num_exemplar=2
+num_probes=10
 
 ###########################################################
 #  serving warm, fresh, & sweet custom, user-provided routes
@@ -103,68 +105,58 @@ def compute_bonus():
 		abort(404)  # again, bad to display HTML, but...
 
 ####### TY code
-#import numpy as np
-#import json
-#import os
+import numpy as np
+import json
+import os
+import re
 
-#@custom_code.route('/create_tasklist', methods=['POST'])
-#def create_tasklist():
-    #try:           
-        #data_dir='static/data/'
-        #level1_dir=data_dir+"/movies/"
+@custom_code.route('/create_tasklist', methods=['POST'])
+def create_tasklist():
+    try:     
+        files=[]
 
-        #files=[]
-        #for folder in os.listdir(level1_dir):
-           # level2_dir= level1_dir + folder + '/'
-
-            #try:
-
-                #if 'success' in os.listdir(level2_dir):
-
-                    #for subfolder in os.listdir(level2_dir):
-
-                    #    try:
-                    #        level3_dir=level2_dir + subfolder + '/'
-
-                   #         if '.mp4' in os.listdir(level3_dir)[0]:
-                                 # Get the successes and failures
-                  #              potential_files=[folder + '/' + subfolder + '/' + i for i in os.listdir(level3_dir)]
-                 #               np.random.shuffle(potential_files)
-                #                files+=(potential_files[:5])
-
-               #             else:
-              #                  for subsubfolder in os.listdir(level3_dir):  
-
-             #                       try:
-            #                            level4_dir=level3_dir + subsubfolder + '/'
-           #                             potential_files=[folder + '/' + subfolder + '/' + subsubfolder + '/' + i for i in os.listdir(level4_dir)]
-          #                              np.random.shuffle(potential_files)
-         #                               files+=(potential_files[:5])
-
-        #                            except:
-       #                                 None
-
-      #                  except:
-     #                       None
-
-
-    #            else:
-                    # if doesn't have these folders, just grab 5
-   #                 potential_files=[folder + '/' + i for i in os.listdir(level2_dir)]
-  #                  np.random.shuffle(potential_files)
- #                   files+=(potential_files[:5])
-#            except:
-#                None
-
- #       data=[files]
-
-#        with open('static/data/condlist.json','w') as outfile:
-#            json.dump(data,outfile,indent=4)
-
-#        outfile.close()
+        data_dir='static/data/'
+        level1_dir=data_dir+"/movies/"
+        
+        # what are the base videos?
+        base_videos=[i for i in os.listdir(level1_dir) if 'mp4' in i]
+        base_videos=np.array(base_videos)
+        
+        # what types of events are these?
+        event_types=[f[:re.search(r"\d", f).start()] for f in base_videos]
+        event_types=np.array(event_types)
 
     
-#    except:
-#        abort(404) 
+        # how many iterations of each unique event type are there? 
+        # What videos will you use? 
+        unique_events=np.unique(event_types)
+        for event_type in unique_events:
+            
+            mask=event_types==event_type
+            #print(event_type)
+            #print(len(event_types[files]))
+            
+            exemplars=np.random.choice(base_videos[mask],num_exemplar)
+            files.extend(exemplars)
+            
+            for exemplar in exemplars:
+                vid_name=exemplar.split('.mp4')[0] # get before the 
+                probes=os.listdir(level1_dir+vid_name+'_mint/')
+                probe_vids=np.random.choice(probes,num_probes-1) # subtract 1 probe which will be the original
+                probe_vids=[vid_name+'_mint/'+i for i in probe_vids]   
+                
+                #print(probe_vids)
+                files.extend(probe_vids)
+
+        data= [files]
         
-#create_tasklist()
+        with open('static/data/condlist.json','w') as outfile:
+            json.dump(data,outfile,indent=4)
+
+            outfile.close()
+
+    
+    except:
+        abort(404) 
+        
+create_tasklist()

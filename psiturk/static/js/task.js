@@ -176,7 +176,6 @@ function tempAlert(msg,duration) {
  	document.body.appendChild(el);
 }
 
-function outline() {
 
 function draw(duration) {
 
@@ -352,12 +351,12 @@ addResponse() {
 			event.preventDefault();
 			
 			var time = new Date().getTime() - starttime;
-			if (time > 500) {
+			if (time > 500 && me.next.disabled === true) {
 				// tell them
 				//tempAlert('space',500)
 
 				 // outline the video
-				 outline();
+				draw(500)
 				 
 				 // save the data
 				 me.spacebar.push(time); 
@@ -458,12 +457,12 @@ var InstructionRunner = function(condlist) {
     
     [
       "Here is an example of a dynamic scene in which there is no pause.<br>",
-      "movie", "intact/collision_collision1.mp4", false // ADD THE EXAMPLE VIDEO
+      "movie", "collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
       "Here is an example of a dynamic scene in which there is a pause (watch carefully!)<br>",
-    "movie", "noboundary/collision_collision1_noboundary_shorter.mp4", false // ADD THE EXAMPLE VIDEO
+    "movie", "collision_collision4312_mint/collision_collision4312_mint_125ms_8.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
