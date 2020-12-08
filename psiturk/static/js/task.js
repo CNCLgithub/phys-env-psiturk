@@ -13,6 +13,7 @@ var mycondition = condition;
 var MOVIESCREEN = "moviescreen";
 var DRAGBOX = "dragbox"
 var NEXTBUTTON = "nextbutton";
+var PROGRESS = "progress";
 var RELOAD = "reloadbutton";
 var RES_SLIDER = "trialRes";
 var INS_INSTRUCTS = "instruct";
@@ -450,23 +451,25 @@ var InstructionRunner = function(condlist) {
     ],
     
     [
-      "We will first show you two videos as examples and for practice. Your task when watching these videos is to press a space bar when you see a short pause in the video. Not every video will have a pause, in which case you should not press the spacebar.",
+      "We will first show you two videos as examples and for practice. Your task when watching these videos is to <b>press a space bar when you see a short pause in the video</b>. " + 
+      "When you press the space bar, the border around the video will turn red to indicate that we have registered your response. <br><br> " +
+      "Note that not every video will have a pause, in which case you should not press the spacebar.",
       "", "", false
     ],
     
     
     [
       "Here is an example of a dynamic scene in which there is no pause.<br>",
-      "movie", "collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
+      "movie", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
-      "Here is an example of a dynamic scene in which there is a pause (watch carefully!)<br>",
-    "movie", "collision_collision4312_mint/collision_collision4312_mint_125ms_8.mp4", false // ADD THE EXAMPLE VIDEO
+      "Here is an example of a dynamic scene in which there is a pause (watch carefully, and practice pressing the space bar)<br>",
+    "movie", "example_collision_collision4312_mint_125ms_8.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
-      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. You should press the spacebar when you think you see a short pause in the video. After the video ends, you will be able to record your confidence response. To submit your answer, you will drag a slider ranging from 'Not very confident' to 'Very confident' that there was a distortion.<br>" +
+      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. You should only press the spacebar when you think you see a short pause in the video. After the video ends, you will be able to record how confident you are in your response. To submit your answer, you will drag a slider ranging from 'Not very confident' to 'Very confident' that there was or was not a distortion.<br>" +
         "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted your confidence response.",
       "", "", false
     ],
@@ -573,8 +576,8 @@ var Experiment = function(triallist) {
   var screen = document.getElementById(MOVIESCREEN);
   var button = document.getElementById(NEXTBUTTON);
   var reloadbtn = document.getElementById(RELOAD);
+  var prog = document.getElementById(PROGRESS);
   
-  var curidx = 0;
   var starttime = -1;
 
   // uses `Page` to show a single trial
@@ -587,7 +590,7 @@ var Experiment = function(triallist) {
     
     var flnm = triallist[curIdx];
     
-    //show_progress(curIdx);
+    show_progress(curIdx);
     
     starttime = new Date().getTime();
     var pg = new Page("Press the spacebar when a pause occurs", "movie", flnm, true);
@@ -632,6 +635,11 @@ var Experiment = function(triallist) {
     psiTurk.saveData();
     new Questionnaire();
   };
+  
+	// show current trial number
+    var show_progress = function(cIdx) {
+        prog.innerHTML = (cIdx + 1) + " / " + (triallist.length);
+    };
 
   // Let's begin!
   runTrial(0);

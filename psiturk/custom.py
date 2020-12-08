@@ -120,6 +120,7 @@ def create_tasklist():
         
         # what are the base videos?
         base_videos=[i for i in os.listdir(level1_dir) if 'mp4' in i]
+        base_videos=[i for i in base_videos if 'example' not in i]
         base_videos=np.array(base_videos)
         
         # what types of events are these?
