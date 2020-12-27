@@ -26,6 +26,7 @@ myauth = PsiTurkAuthorization(config)  # if you want to add a password protect r
 # explore the Blueprint
 custom_code = Blueprint('custom_code', __name__, template_folder='templates', static_folder='static')
 
+cond=1
 
 num_exemplar=2
 num_probes=10
@@ -110,54 +111,67 @@ import json
 import os
 import re
 
+# @custom_code.route('/create_tasklist', methods=['POST'])
+# def create_tasklist():
+#     try:     
+#         files=[]
+# 
+#         data_dir='static/data/'
+#         level1_dir=data_dir+"/movies/"
+#         
+#         # what are the base videos?
+#         base_videos=[i for i in os.listdir(level1_dir) if 'mp4' in i]
+#         base_videos=[i for i in base_videos if 'example' not in i]
+#         base_videos=np.array(base_videos)
+#         
+#         # what types of events are these?
+#         event_types=[f[:re.search(r"\d", f).start()] for f in base_videos]
+#         event_types=np.array(event_types)
+# 
+#     
+#         # how many iterations of each unique event type are there? 
+#         # What videos will you use? 
+#         unique_events=np.unique(event_types)
+#         for event_type in unique_events:
+#             
+#             mask=event_types==event_type
+#             #print(event_type)
+#             #print(len(event_types[files]))
+#             
+#             exemplars=np.random.choice(base_videos[mask],num_exemplar)
+#             files.extend(exemplars)
+#             
+#             for exemplar in exemplars:
+#                 vid_name=exemplar.split('.mp4')[0] # get before the 
+#                 probes=os.listdir(level1_dir+vid_name+'_mint/')
+#                 probe_vids=np.random.choice(probes,num_probes-1) # subtract 1 probe which will be the original
+#                 probe_vids=[vid_name+'_mint/'+i for i in probe_vids]   
+#                 
+#                 #print(probe_vids)
+#                 files.extend(probe_vids)
+# 
+#         data= [files]
+#         
+#         with open('static/data/condlist.json','w') as outfile:
+#             json.dump(data,outfile,indent=4)
+# 
+#             outfile.close()
+# 
+#     
+#     except:
+#         abort(404) 
+
+
 @custom_code.route('/create_tasklist', methods=['POST'])
 def create_tasklist():
-    try:     
-        files=[]
+	conditions=np.loadtxt('static/data/all_condition_lists.txt',dtype=str)
+	data=conditions[cond,:]
 
-        data_dir='static/data/'
-        level1_dir=data_dir+"/movies/"
+	with open('static/data/condlist.json','w') as outfile:
+		json.dump([list(data)],outfile,indent=4)
+ 
+		outfile.close()
         
-        # what are the base videos?
-        base_videos=[i for i in os.listdir(level1_dir) if 'mp4' in i]
-        base_videos=[i for i in base_videos if 'example' not in i]
-        base_videos=np.array(base_videos)
         
-        # what types of events are these?
-        event_types=[f[:re.search(r"\d", f).start()] for f in base_videos]
-        event_types=np.array(event_types)
-
-    
-        # how many iterations of each unique event type are there? 
-        # What videos will you use? 
-        unique_events=np.unique(event_types)
-        for event_type in unique_events:
-            
-            mask=event_types==event_type
-            #print(event_type)
-            #print(len(event_types[files]))
-            
-            exemplars=np.random.choice(base_videos[mask],num_exemplar)
-            files.extend(exemplars)
-            
-            for exemplar in exemplars:
-                vid_name=exemplar.split('.mp4')[0] # get before the 
-                probes=os.listdir(level1_dir+vid_name+'_mint/')
-                probe_vids=np.random.choice(probes,num_probes-1) # subtract 1 probe which will be the original
-                probe_vids=[vid_name+'_mint/'+i for i in probe_vids]   
-                
-                #print(probe_vids)
-                files.extend(probe_vids)
-
-        data= [files]
-        
-        with open('static/data/condlist.json','w') as outfile:
-            json.dump(data,outfile,indent=4)
-
-            outfile.close()
-
-    
-    except:
-        abort(404) 
         
 create_tasklist()

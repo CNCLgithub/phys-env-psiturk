@@ -123,7 +123,7 @@ var make_mov = function(movname, is_intro, has_ctr) {
   var fmovnm = "static/data/movies/" + movname;
   var foggnm = fmovnm.substr(0, fmovnm.lastIndexOf('.')) + ".ogg";
   var ret = //`<span id="qspan">Press spacebar when you see a video distortion</span>` +
-   `<video id="thisvideo" style="border: solid transparent; margin-top: ${PAGESIZE*.2}px; margin-bottom: ${PAGESIZE*.2}px;" class="${mcl}\${ctr}" width="${PAGESIZE*1.05}px">` +
+   `<video id="thisvideo" style="border: solid transparent; margin-top: ${PAGESIZE*.2}px; margin-bottom: ${PAGESIZE*.2}px;" class="${mcl}\${ctr}" width="${PAGESIZE*1.25}px">` +
       `<source src="${fmovnm}" type="video/mp4">` +
       `<source src="${foggnm}" type="video/ogg">` +
       `Your browser does not support HTML5 mp4 video.</video>`;
@@ -445,7 +445,8 @@ var InstructionRunner = function(condlist) {
   
   
     [
-      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate detect whether or not the video has a distortion in it (in the form of a momentary pause), and your confidence in that decision.<br><br>" +
+      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate detect whether or not the video has a distortion in it (in the form of a momentary pause), and your confidence in that decision." +
+      "There will be a short 3-second countdown before the video begins.<br><br>" +
         "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
       "image", "objects.png", false
     ],
