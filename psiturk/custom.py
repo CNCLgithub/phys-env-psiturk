@@ -26,10 +26,10 @@ myauth = PsiTurkAuthorization(config)  # if you want to add a password protect r
 # explore the Blueprint
 custom_code = Blueprint('custom_code', __name__, template_folder='templates', static_folder='static')
 
-cond=1
+#cond=1
 
-num_exemplar=2
-num_probes=10
+#num_exemplar=2
+#num_probes=10
 
 ###########################################################
 #  serving warm, fresh, & sweet custom, user-provided routes
@@ -162,16 +162,49 @@ import re
 #         abort(404) 
 
 
+#@custom_code.route('/create_tasklist', methods=['POST'])
+#def create_tasklist():
+#	conditions=np.loadtxt('static/data/all_condition_lists.txt',dtype=str)
+#	data=conditions[cond,:]
+
+#	with open('static/data/condlist.json','w') as outfile:
+#		json.dump([list(data)],outfile,indent=4)
+ 
+#		outfile.close()
+        
 @custom_code.route('/create_tasklist', methods=['POST'])
 def create_tasklist():
-	conditions=np.loadtxt('static/data/all_condition_lists.txt',dtype=str)
-	data=conditions[cond,:]
-
-	with open('static/data/condlist.json','w') as outfile:
-		json.dump([list(data)],outfile,indent=4)
- 
-		outfile.close()
+    try:     
+        files=[]
         
+        data_dir='static/data/'
+        level1_dir=data_dir+"/movies/"
+
+                # what are the base videos?
+        base_videos=[level1_dir + i for i in os.listdir(level1_dir) if 'mp4' not in i]
+        base_videos=[i for i in base_videos if '.DS' not in i]
+        
+        
+        # Shuffle all the videos!! 
+        np.random.shuffle(base_videos)
+        
+        for vid in base_videos:
+            non_probes=os.listdir(vid+'/non-visible/')
+            non_probes=[vid.split('/')[-1]+ '/non-visible/' + probe for probe in non_probes if '.DS' not in probe]
+    
+            files.append(non_probes[0])
+            files.append(non_probes[0]) # append twice
+            
+        data= [files]
+        
+        with open('static/data/condlist.json','w') as outfile:
+            json.dump(data,outfile,indent=4)
+
+            outfile.close()
+
+    
+    except:
+        abort(404) 
         
         
 create_tasklist()

@@ -15,7 +15,7 @@ var DRAGBOX = "dragbox"
 var NEXTBUTTON = "nextbutton";
 var PROGRESS = "progress";
 var RELOAD = "reloadbutton";
-var RES_SLIDER = "trialRes";
+//var RES_SLIDER = "trialRes";
 var INS_INSTRUCTS = "instruct";
 var INS_HEADER = "instr_header";
 var PAGESIZE = 500;
@@ -131,6 +131,7 @@ var make_mov = function(movname, is_intro, has_ctr) {
 };
 
 
+
 /********************
  * HTML manipulation
  *
@@ -218,7 +219,7 @@ class Page {
     this.instruct = document.getElementById(INS_INSTRUCTS);
     this.scale_region = document.getElementById("scale_region");
     this.response = document.getElementById("response_region");
-    this.choice = document.getElementById(RES_SLIDER);
+    //this.choice = document.getElementById(RES_SLIDER);
     this.showResponse = show_response;
     this.next = document.getElementById(NEXTBUTTON);
     this.next.disable = true;
@@ -250,20 +251,18 @@ class Page {
     this.addMedia();
   }
 
-
   // Returns the placement of each color scaled from [0, 1]
-  retrieveResponse() {
-    var confidence = document.getElementById("response_slider");
-    var rep = [confidence.value]
+  //retrieveResponse() {
+  //  var confidence = document.getElementById("response_slider");
+  //  var rep = [confidence.value]
         
-    return rep
-  }
+  //  return rep
+  //}
   
   // Return the spacebar presses
   	get_spacebar() {
         return this.spacebar;
   }
-  
   
   /************
    * Helpers  *
@@ -281,9 +280,14 @@ class Page {
     if (this.mediatype === 'image') {
       this.mvsc.innerHTML = make_img(this.mediapath, true, false) + "<br>";
       this.showImage();
+      
     } else if (this.mediatype === 'movie') {
       this.mvsc.innerHTML = make_mov(this.mediapath, true);
       this.showMovie();
+    } else if (this.mediatype === 'movie_nopause') {
+      this.mvsc.innerHTML = make_mov(this.mediapath, true);
+      this.showMovie_nopause();
+      
     } else if (this.mediatype == 'scale'){
       this.mvsc.innerHTML = make_img(this.mediapath, true, false) + "<br>";
       this.scalePage();
@@ -312,17 +316,17 @@ class Page {
     }
   }
   
-addResponse() {
-    this.response.innerHTML = responseSlider();
-  }
+//addResponse() {
+ //   this.response.innerHTML = responseSlider();
+ // }
 
   // The form will automatically enable the next button
   enableResponse() {
-	var box = document.getElementById("response_slider");
-    box.disabled = false;
-   	box.onmousedown = function() { 
+//	var box = document.getElementById("response_slider");
+//    box.disabled = false;
+ //  	box.onmousedown = function() { 
       allowNext();
-    };
+   // };
   }
 
   disableResponse() {
@@ -343,30 +347,66 @@ addResponse() {
     this.next.disabled = true;
     var sc = document.getElementById(MOVIESCREEN);
     var mov = document.getElementById('thisvideo');
-
+	
     let me = this;
-
+	
 	// adding spacebar handling after release
 	document.onkeyup = function(event){
-		if (event.keyCode === 32) {
+	
+		// if ENTER record the frame you are on 
+		if (event.keyCode === 13) {
 			event.preventDefault();
 			
 			var time = new Date().getTime() - starttime;
-			if (time > 500 && me.next.disabled === true) {
+			if (time > 500) {
 				// tell them
 				//tempAlert('space',500)
 
 				 // outline the video
 				draw(500)
 				 
-				 // save the data
-				 me.spacebar.push(time); 
-                    
+				 // save the frame you are on
+				//tempAlert(mov.currentTime,200)
+                me.spacebar.push(mov.currentTime); 
+                
+                // enable next
+                //me.addResponse();
+        		me.enableResponse();
               }
-            }
+            } 
+        
+        // if SPACE BAR play / pause
+        else if (event.keyCode === 32) { 
+        	event.preventDefault();
+        	
+   			if (mov.paused || mov.ended) {
+      			mov.play();
+    		} else {
+      			mov.pause();
+    		}
+        }
+        
+        // if RIGHT move forward
+        else if (event.keyCode === 39) { 
+        	event.preventDefault();
+        	mov.currentTime = (mov.currentTime + 0.200);
+        	
+   			 if (mov.currentTime > mov.duration) {
+      			mov.currentTime = 0;
+        	}    
+        }
+        
+        // if LEFT move backward
+		else if (event.keyCode === 37) {
+			event.preventDefault();
+    		mov.currentTime =(mov.currentTime - 0.200);
+    		
+    		if (mov.currentTime < 0) {
+      			mov.currentTime = 0;
+    		}
+  		} 
     };
     
-
     // The "next" botton will only activate after recording a response
     if (this.showResponse) {
       this.next.style.display = "none";
@@ -374,7 +414,7 @@ addResponse() {
         if (me.mask) {
           cut2black();
         }
-        me.addResponse();
+        //me.addResponse();
         me.enableResponse();
       };
       
@@ -387,22 +427,70 @@ addResponse() {
         me.next.disabled = false;
       };
     }
+    
+    mov.oncanplaythrough = function() {
+      mov.pause();
+    };
+    
+    mov.onended = movOnEnd;
+    
+  }
+  
+  // plays movie automatically
+  showMovie_nopause() {
+
+	var starttime = new Date().getTime();
+	
+    this.next.disabled = true;
+    var sc = document.getElementById(MOVIESCREEN);
+    var mov = document.getElementById('thisvideo');
+	
+    let me = this;
+
+	// adding spacebar handling after release
+	document.onkeyup = function(event){
+	
+		// ignore input from the keys we previously designated as being important
+		if (event.keyCode === 13 || event.keyCode === 32 || event.keyCode === 39 || event.keyCode === 37) {
+			event.preventDefault();
+			
+            }      
+    };
+
+    // The "next" botton will only activate after recording a response
+    if (this.showResponse) {
+      this.next.style.display = "none";
+      var movOnEnd = function() {
+        if (me.mask) {
+          cut2black();
+        }
+        //me.addResponse();
+        me.enableResponse();
+      };
+      
+    } else {
+      // Otherwise allow next once movie is complete
+      var movOnEnd = function() {
+        if (me.mask) {
+          cut2black();
+        }
+        me.next.disabled = false;
+      };
+    }
+    
     mov.oncanplaythrough = function() {
       mov.play();
     };
     
     mov.onended = movOnEnd;
     
-    
   }
   
-  
-
 // shows an image
   showImage() {
     if (this.showResponse) {
       this.next.disabled = true;
-      this.addResponse();
+      //this.addResponse();
       this.enableResponse();
     } else {
       this.next.disabled = false;
@@ -422,6 +510,7 @@ var InstructionRunner = function(condlist) {
   var mvsc = document.getElementById(MOVIESCREEN);
   var reloadbtn = document.getElementById(RELOAD);
   var nTrials = condlist.length;
+  var halfTrials = nTrials / 2;
 
   // each instruction is an array of 4 elements
   // 1: The text to be shown (if any)
@@ -433,51 +522,53 @@ var InstructionRunner = function(condlist) {
   
       [
       "<b>Before we begin, follow the instructions below to setup your display.</b><br><hr />" +
-        "<p>Please sit comfortably in front of you monitor and outstretch your arm holding a credit card (or a similary sized ID card). <br>" +
-        "<p>Adjust the size of the image using the slider until its <strong>width</strong> matches the width of your credit card (or ID card).",
+        "<p>Please sit comfortably in front of you monitor and outstretch your arm holding a credit card (or a similary sized ID card). <br> " +
+        "<p>Adjust the size of the image using the slider until its <strong>width</strong> matches the width of your credit card (or ID card). ",
       "scale", "generic_cc.png", false
     ],
   
     [
-      "Please maintain this arm-length distance from your monitor for the duration of this experiment (30-45 minutes).",
+      "Please maintain this arm-length distance from your monitor for the duration of this experiment (30-45 minutes). ",
       "text", "", false
     ],
   
   
     [
-      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate detect whether or not the video has a distortion in it (in the form of a momentary pause), and your confidence in that decision." +
-      "There will be a short 3-second countdown before the video begins.<br><br>" +
-        "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
+      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate when you think in the video it feels like a new event has occurred. " +
+        "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups. ",
       "image", "objects.png", false
     ],
     
     [
-      "We will first show you two videos as examples and for practice. Your task when watching these videos is to <b>press a space bar when you see a short pause in the video</b>. " + 
-      "When you press the space bar, the border around the video will turn red to indicate that we have registered your response. <br><br> " +
-      "Note that not every video will have a pause, in which case you should not press the spacebar.",
+      "We will first show you a video as an example and for practice. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
+      "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can fast forward (RIGHT ARROW KEY) and rewind (LEFT ARROW KEY) the video to find where in the video you think there is an event change. <br><br>"+
+      "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response.  <br><br> " +
+      "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. <br><br> "+
+      "When you are ready to practice, press the NEXT button and the video will start automatically.",
+      "image", "keyboard_keys.png", false
+    ],
+    
+    
+    [
+      "For every new video, you will first simply watch the movie.",
+      "movie_nopause", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
+    ],
+    
+    [
+      "Then, you will be able to indicate your response. Press space bar to start the video and to pause it. Use the arrow keys to find where in the video it feels like there is an event change and press ENTER when you are happy with your decision. <br>" +
+      "Space-bar: play/pause, Left arrow key: rewind, Right arrow key: fast forward, Enter: confirm response",
+    "movie", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
+    ],
+    
+    [
+      "That's the task! To reiterate, you will watch each video all the way through once before then getting to indicate the event changes. You should only press enter when you think the video is at an event change. You can indicate more than one event change in the same video. <br><br>" +
+        "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted at least one response.",
       "", "", false
     ],
     
     
-    [
-      "Here is an example of a dynamic scene in which there is no pause.<br>",
-      "movie", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
-    ],
-    
-    [
-      "Here is an example of a dynamic scene in which there is a pause (watch carefully, and practice pressing the space bar)<br>",
-    "movie", "example_collision_collision4312_mint_125ms_8.mp4", false // ADD THE EXAMPLE VIDEO
-    ],
-    
-    [
-      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. You should only press the spacebar when you think you see a short pause in the video. After the video ends, you will be able to record how confident you are in your response. To submit your answer, you will drag a slider ranging from 'Not very confident' to 'Very confident' that there was or was not a distortion.<br>" +
-        "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted your confidence response.",
-      "", "", false
-    ],
-    
-    
-    ["We will now have a short check to make sure that you have understood the instructions." +
-      "Then you will have to make your judgments about " + nTrials +  " trials.<br>", // name the number of trials
+    ["We will now have a short check to make sure that you have understood the instructions. " +
+      "Then you will have to make your judgments about " + halfTrials +  " videos, (totaling " + nTrials + " trials).<br>", // name the number of trials
       "", "", false
     ],
 
@@ -572,7 +663,7 @@ var Experiment = function(triallist) {
 
   psiTurk.showPage('stage.html');
   
-  var triallist = shuffle(triallist);
+  //var triallist = shuffle(triallist);
   
   var screen = document.getElementById(MOVIESCREEN);
   var button = document.getElementById(NEXTBUTTON);
@@ -594,7 +685,16 @@ var Experiment = function(triallist) {
     show_progress(curIdx);
     
     starttime = new Date().getTime();
-    var pg = new Page("Press the spacebar when a pause occurs", "movie", flnm, true);
+    
+    // If its an even number, just watch
+    if (curIdx % 2 == 0) {
+    	var pg = new Page("Watch the video", "movie_nopause", flnm, true);
+    } 
+    
+    // If its an odd trial, indicate the response 
+    else {
+    	var pg = new Page("Indicate event changes <br><br> "+ "Space-bar: play/pause, Left arrow key: rewind, Right arrow key: fast forward, Enter: confirm response", "movie", flnm, true);
+    }
     
     // `Page` will record the subject responce when "next" is clicked
     // and go to the next trial
@@ -619,14 +719,12 @@ var Experiment = function(triallist) {
   var register_response = function(trialPage, cIdx) {
   
     //var rt = new Date().getTime() - starttime;
-    var rep = trialPage.retrieveResponse();
+    //var rep = trialPage.retrieveResponse();
     var spaces = trialPage.get_spacebar();
     
     psiTurk.recordTrialData({
       'TrialName': triallist[cIdx],
-      'Spacebar': spaces,
-      'Confidence': rep[0],
-      //'ReactionTime': rt,
+      'Boundaries': spaces,
       'IsInstruction': false,
       'TrialOrder': cIdx
     });
@@ -737,7 +835,8 @@ $(window).load(function() {
       url: "static/data/condlist.json",
       async: false,
       success: function(data) {
-        condlist = shuffle(data[condition]);
+        //condlist = shuffle(data[condition]);
+        condlist = data[condition];
         InstructionRunner(condlist);
         ProlificID(condlist);
       },
