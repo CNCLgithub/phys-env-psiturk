@@ -389,7 +389,7 @@ class Page {
         // if RIGHT move forward
         else if (event.keyCode === 39) { 
         	event.preventDefault();
-        	mov.currentTime = (mov.currentTime + 0.200);
+        	mov.currentTime = (mov.currentTime + 0.050);
         	
    			 if (mov.currentTime > mov.duration) {
       			mov.currentTime = 0;
@@ -399,7 +399,7 @@ class Page {
         // if LEFT move backward
 		else if (event.keyCode === 37) {
 			event.preventDefault();
-    		mov.currentTime =(mov.currentTime - 0.200);
+    		mov.currentTime =(mov.currentTime - 0.050);
     		
     		if (mov.currentTime < 0) {
       			mov.currentTime = 0;
@@ -407,32 +407,32 @@ class Page {
   		} 
     };
     
-    // The "next" botton will only activate after recording a response
-    if (this.showResponse) {
-      this.next.style.display = "none";
-      var movOnEnd = function() {
-        if (me.mask) {
-          cut2black();
-        }
-        //me.addResponse();
-        me.enableResponse();
-      };
-      
-    } else {
-      // Otherwise allow next once movie is complete
-      var movOnEnd = function() {
-        if (me.mask) {
-          cut2black();
-        }
-        me.next.disabled = false;
-      };
-    }
+//     The "next" botton will only activate after recording a response
+//     if (this.showResponse) {
+//       this.next.style.display = "none";
+//       var movOnEnd = function() {
+//         if (me.mask) {
+//           cut2black();
+//         }
+//         me.addResponse();
+//        me.enableResponse();
+//       };
+//       
+//     } else {
+//       Otherwise allow next once movie is complete
+//       var movOnEnd = function() {
+//         if (me.mask) {
+//           cut2black();
+//         }
+//         me.next.disabled = false;
+//       };
+//    }
     
     mov.oncanplaythrough = function() {
       mov.pause();
     };
     
-    mov.onended = movOnEnd;
+//    mov.onended = movOnEnd;
     
   }
   
