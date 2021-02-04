@@ -154,16 +154,6 @@ function scaleSlider() {
 };
 
 
-function responseSlider() {
-  return `<span id="qspan">How confident are you in your response?</span>` +
-    `<div id="lab-div">` +
-    `<div id="lab-left"><i>Not confident at all</i></div>` +
-    `<div id="lab-center"><i>Unsure</i></div>` +
-    `<div id="lab-right"><i>Very confident</i></div>` +
-    `</div>` +
-    `<input id="response_slider" type="range" min="0" max="100" default="50" width="${PAGESIZE*1.05}px" disabled/>`
-};
-
 //temp alert
 function tempAlert(msg,duration) {
  var el = document.createElement("div");
@@ -180,26 +170,28 @@ function tempAlert(msg,duration) {
 
 
 function draw(duration) {
-
   var video = document.getElementById('thisvideo');
   video.style.borderColor = "red";
-  //var x = document.createElement("CANVAS");
-  //var ctx = x.getContext("2d");
-  
-  //ctx.drawImage(video, 0, 0, video.videoWidth,video.videoHeight);
-  
-  // ctx.strokeStyle = "#FF0000";
-  // ctx.strokeRect(0,0,video.videoWidth,video.videoHeight);
-
+ 
   setTimeout(function(){
     video.style.borderColor = "transparent";
-  	//x.parentNode.removeChild(x);
   	},duration);
-    
-   // document.body.appendChild(x);
  
 }
 
+function show_boundary(spacebar) {
+	var video = document.getElementById('thisvideo');
+    // are you on a frame you've previously indicated is important?? 
+    if (spacebar.includes(Math.round(video.currentTime))) {
+    	video.style.borderColor = "MediumVioletRed";
+    	setTimeout(function(){
+    	video.style.borderColor = "transparent";
+  		},100);
+    	//tempAlert('previous boundary',500)
+    } else {
+    	video.style.borderColor = "transparent";
+    };
+}
 
 class Page {
 
@@ -219,13 +211,14 @@ class Page {
     this.instruct = document.getElementById(INS_INSTRUCTS);
     this.scale_region = document.getElementById("scale_region");
     this.response = document.getElementById("response_region");
-    //this.choice = document.getElementById(RES_SLIDER);
     this.showResponse = show_response;
     this.next = document.getElementById(NEXTBUTTON);
+    this.next.innerText = 'Next'; //initialize as next
     this.next.disable = true;
     this.mvsc = document.getElementById(MOVIESCREEN);
     this.reloadbtn = document.getElementById(RELOAD);
     this.spacebar = [];
+    this.paused = [];
   }
 
   // Loads content to the page
@@ -250,20 +243,16 @@ class Page {
     // on complete presentation of the media.
     this.addMedia();
   }
-
-  // Returns the placement of each color scaled from [0, 1]
-  //retrieveResponse() {
-  //  var confidence = document.getElementById("response_slider");
-  //  var rep = [confidence.value]
-        
-  //  return rep
-  //}
   
   // Return the spacebar presses
   	get_spacebar() {
         return this.spacebar;
   }
   
+// Return the pause information 
+  get_paused() {
+        return this.paused;
+  }
   /************
    * Helpers  *
    ***********/
@@ -280,17 +269,18 @@ class Page {
     if (this.mediatype === 'image') {
       this.mvsc.innerHTML = make_img(this.mediapath, true, false) + "<br>";
       this.showImage();
-      
     } else if (this.mediatype === 'movie') {
       this.mvsc.innerHTML = make_mov(this.mediapath, true);
       this.showMovie();
     } else if (this.mediatype === 'movie_nopause') {
       this.mvsc.innerHTML = make_mov(this.mediapath, true);
       this.showMovie_nopause();
-      
     } else if (this.mediatype == 'scale'){
       this.mvsc.innerHTML = make_img(this.mediapath, true, false) + "<br>";
       this.scalePage();
+    } else if (this.mediatype == 'calibration'){
+      this.mvsc.innerHTML = make_mov(this.mediapath, true);
+      this.calibrateDelay();
     } else {
       this.mvsc.innerHTML = "";
       this.showImage();
@@ -316,21 +306,10 @@ class Page {
     }
   }
   
-//addResponse() {
- //   this.response.innerHTML = responseSlider();
- // }
 
   // The form will automatically enable the next button
   enableResponse() {
-//	var box = document.getElementById("response_slider");
-//    box.disabled = false;
- //  	box.onmousedown = function() { 
       allowNext();
-   // };
-  }
-
-  disableResponse() {
-    document.getElementById("response_slider").disabled = true;
   }
 
   clearResponse() {
@@ -339,10 +318,30 @@ class Page {
   }
   
 
-  // plays movie
+  // plays movie with the ability to navigate through it and determine boundaries
   showMovie() {
 
+	var frameRate=30;
+	function movForward() {
+	 	var mov = document.getElementById('thisvideo');
+		mov.currentTime = (mov.currentTime + 1/frameRate); // frames per sec is about 30
+        	
+   		if (mov.currentTime > mov.duration) {
+      		mov.currentTime = 0;
+        }    
+	}
+	
+	function movBackward() {
+	 	var mov = document.getElementById('thisvideo');
+    	mov.currentTime =(mov.currentTime - 1/frameRate); // frames per sec is about 30
+    		
+    	if (mov.currentTime < 0) {
+      		mov.currentTime = 0;
+    	}
+	}
+
 	var starttime = new Date().getTime();
+	var timer; // so that they can move forward and backwards
 	
     this.next.disabled = true;
     var sc = document.getElementById(MOVIESCREEN);
@@ -359,18 +358,21 @@ class Page {
 			
 			var time = new Date().getTime() - starttime;
 			if (time > 500) {
-				// tell them
-				//tempAlert('space',500)
 
 				 // outline the video
 				draw(500)
 				 
-				 // save the frame you are on
-				//tempAlert(mov.currentTime,200)
-                me.spacebar.push(mov.currentTime); 
+				 // save the time it is (rounded)
+                me.spacebar.push(Math.round(mov.currentTime)); 
+                
+                // tell us if they pressed while the video was paused or playing 
+                if (mov.paused) {
+                	me.paused.push(1); 
+                } else {
+                	me.paused.push(0); 
+                };
                 
                 // enable next
-                //me.addResponse();
         		me.enableResponse();
               }
             } 
@@ -388,51 +390,47 @@ class Page {
         
         // if RIGHT move forward
         else if (event.keyCode === 39) { 
+        	clearInterval(timer);
+ 			timer= null;
         	event.preventDefault();
-        	mov.currentTime = (mov.currentTime + 0.050);
-        	
-   			 if (mov.currentTime > mov.duration) {
-      			mov.currentTime = 0;
-        	}    
+        	movForward();
         }
         
         // if LEFT move backward
 		else if (event.keyCode === 37) {
 			event.preventDefault();
-    		mov.currentTime =(mov.currentTime - 0.050);
-    		
-    		if (mov.currentTime < 0) {
-      			mov.currentTime = 0;
-    		}
+			clearInterval(timer);
+ 			timer= null;
+    		movBackward();
+    
   		} 
     };
     
-//     The "next" botton will only activate after recording a response
-//     if (this.showResponse) {
-//       this.next.style.display = "none";
-//       var movOnEnd = function() {
-//         if (me.mask) {
-//           cut2black();
-//         }
-//         me.addResponse();
-//        me.enableResponse();
-//       };
-//       
-//     } else {
-//       Otherwise allow next once movie is complete
-//       var movOnEnd = function() {
-//         if (me.mask) {
-//           cut2black();
-//         }
-//         me.next.disabled = false;
-//       };
-//    }
-    
-    mov.oncanplaythrough = function() {
-      mov.pause();
+    // this will let you move forward or backward multiple frames if the key is down
+	document.onkeydown = function(event){
+        
+        // if RIGHT move forward
+        if (event.keyCode === 39) { 
+        	event.preventDefault();
+        	if(timer) return;
+        	timer=setInterval(movForward, 200) // lower the number to speed it up (but have more jumpiness / errors)
+        	
+        }
+        
+        // if LEFT move backward
+		else if (event.keyCode === 37) {
+			event.preventDefault();
+			if(timer) return;
+        	timer=setInterval(movBackward, 200)
+
+  		} 
     };
     
-//    mov.onended = movOnEnd;
+    mov.oncanplaythrough = function() {
+      mov.pause(); //start out paused
+    };
+    
+    //show_boundary(me.spacebar)
     
   }
   
@@ -441,10 +439,13 @@ class Page {
 
 	var starttime = new Date().getTime();
 	
+	this.next.innerText = 'Proceed to segmentation';
     this.next.disabled = true;
+
     var sc = document.getElementById(MOVIESCREEN);
     var mov = document.getElementById('thisvideo');
 	
+	mov.style.borderColor = "DeepSkyBlue"; // just add a blue border, because! 
     let me = this;
 
 	// adding spacebar handling after release
@@ -464,7 +465,6 @@ class Page {
         if (me.mask) {
           cut2black();
         }
-        //me.addResponse();
         me.enableResponse();
       };
       
@@ -486,11 +486,77 @@ class Page {
     
   }
   
+  // calibration
+  calibrateDelay() {
+
+	var starttime = new Date().getTime();
+	
+    this.next.disabled = true;
+
+    var sc = document.getElementById(MOVIESCREEN);
+    var mov = document.getElementById('thisvideo');
+	
+    let me = this;
+
+	// adding spacebar handling after release
+	document.onkeyup = function(event){
+	
+		// ignore input from the keys we previously designated as being important
+		if (event.keyCode === 32 || event.keyCode === 39 || event.keyCode === 37) {
+			event.preventDefault();
+			
+            }      
+            
+        // if ENTER record the frame you are on 
+		if (event.keyCode === 13) {
+			event.preventDefault();
+			
+			var time = new Date().getTime() - starttime;
+			if (me.next.disabled === true) {
+
+				 // outline the video
+				draw(500)
+				 
+				 // save the time it is (rounded)
+                me.spacebar.push(time); 
+              }
+            } 
+    };
+
+    // The "next" botton will only activate after recording a response
+    if (this.showResponse) {
+      this.next.style.display = "none";
+      var movOnEnd = function() {
+        if (me.mask) {
+          cut2black();
+        }
+        me.enableResponse();
+      };
+      
+    } else {
+      // Otherwise allow next once movie is complete
+      var movOnEnd = function() {
+        if (me.mask) {
+          cut2black();
+        }
+        me.next.disabled = false;
+      };
+    }
+    
+    mov.oncanplaythrough = function() {
+      mov.play();
+    };
+    
+    mov.onended = movOnEnd;
+    
+  }
+  
+  
+  
 // shows an image
   showImage() {
     if (this.showResponse) {
       this.next.disabled = true;
-      //this.addResponse();
       this.enableResponse();
     } else {
       this.next.disabled = false;
@@ -540,35 +606,45 @@ var InstructionRunner = function(condlist) {
     ],
     
     [
-      "We will first show you a video as an example and for practice. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
-      "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can fast forward (RIGHT ARROW KEY) and rewind (LEFT ARROW KEY) the video to find where in the video you think there is an event change. <br><br>"+
-      "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response.  <br><br> " +
+      "Before we begin, we will need to test your reaction time. <br><br>On the next page, you will see a video that will flash a yellow star five times at random points in the video. <br><br>" +
+        "<b>Press ENTER as soon as you see the yellow star as quickly as possible.</b>",
+      "text", "", false
+    ],
+    
+    [
+    	"Press ENTER as soon as you see the yellow star!",
+      "calibration", "star_calibration.mp4", true
+    ],
+    
+    [
+      "Great! Now for the main task, you will be deciding when during videos event changes occur. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
+      "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can move forward in time (RIGHT ARROW KEY) and backward in time (LEFT ARROW KEY) to find where in the video you think there is an event change. Holding down the arrow keys moves the video faster.<br><br>"+
+      "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response. <br><br> " +
       "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. <br><br> "+
       "When you are ready to practice, press the NEXT button and the video will start automatically.",
       "image", "keyboard_keys.png", false
     ],
     
-    
     [
-      "For every new video, you will first simply watch the movie.",
+      "For every new video, you will first simply watch it. (The light blue border indicates that you will not be responding just yet).",
       "movie_nopause", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
-      "Then, you will be able to indicate your response. Press space bar to start the video and to pause it. Use the arrow keys to find where in the video it feels like there is an event change and press ENTER when you are happy with your decision. <br>" +
+      "Then, you will be able to indicate your response. Press space bar to start the video and to pause it. Use the arrow keys to find where in the video it feels like there is an event change and press ENTER when you are happy with your decision. <br><br>" +
       "Space-bar: play/pause, Left arrow key: rewind, Right arrow key: fast forward, Enter: confirm response",
     "movie", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
-      "That's the task! To reiterate, you will watch each video all the way through once before then getting to indicate the event changes. You should only press enter when you think the video is at an event change. You can indicate more than one event change in the same video. <br><br>" +
+      "That's the task! To reiterate, you will watch each video all the way through once before then getting to indicate the event changes. You should only press ENTER when you think the video is at an event change. You can indicate more than one event change in the same video. <br><br>" +
         "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted at least one response.",
       "", "", false
     ],
     
     
     ["We will now have a short check to make sure that you have understood the instructions. " +
-      "Then you will have to make your judgments about " + halfTrials +  " videos, (totaling " + nTrials + " trials).<br>", // name the number of trials
+      "Then you will have to make your judgments about " + halfTrials +  " videos.<br>", // name the number of trials
       "", "", false
     ],
 
@@ -625,9 +701,7 @@ var quiz = function(goBack, goNext) {
       } else if (this.id === 'trueFalse2' && this.value != 'c') {
         allRight = false;
       }
-      // }else if(this.id==='densOrder' && this.value != 'second'){
-      //     allRight = false;
-      // }
+
     });
     return allRight
   };
@@ -663,7 +737,7 @@ var Experiment = function(triallist) {
 
   psiTurk.showPage('stage.html');
   
-  //var triallist = shuffle(triallist);
+  //var triallist = shuffle(triallist); // not shuffling at this step so that all videos are played twice back to back 
   
   var screen = document.getElementById(MOVIESCREEN);
   var button = document.getElementById(NEXTBUTTON);
@@ -693,7 +767,7 @@ var Experiment = function(triallist) {
     
     // If its an odd trial, indicate the response 
     else {
-    	var pg = new Page("Indicate event changes <br><br> "+ "Space-bar: play/pause, Left arrow key: rewind, Right arrow key: fast forward, Enter: confirm response", "movie", flnm, true);
+    	var pg = new Page("Indicate event changes <br><br> "+ "Space-bar: play/pause, Left arrow key: back a frame, Right arrow key: forward a frame, Enter: confirm response", "movie", flnm, true);
     }
     
     // `Page` will record the subject responce when "next" is clicked
@@ -701,7 +775,6 @@ var Experiment = function(triallist) {
     
     pg.showPage(
       function() {
-      	
       	
         register_response(pg, curIdx);
         
@@ -718,13 +791,13 @@ var Experiment = function(triallist) {
   // Record the subject's response for a given trial.
   var register_response = function(trialPage, cIdx) {
   
-    //var rt = new Date().getTime() - starttime;
-    //var rep = trialPage.retrieveResponse();
     var spaces = trialPage.get_spacebar();
+    var pauses = trialPage.get_paused();
     
     psiTurk.recordTrialData({
       'TrialName': triallist[cIdx],
       'Boundaries': spaces,
+      'Boundary_On_Pause': pauses,
       'IsInstruction': false,
       'TrialOrder': cIdx
     });
@@ -737,7 +810,7 @@ var Experiment = function(triallist) {
   
 	// show current trial number
     var show_progress = function(cIdx) {
-        prog.innerHTML = (cIdx + 1) + " / " + (triallist.length);
+        prog.innerHTML = (cIdx + 1) + " / " + (triallist.length / 2);
     };
 
   // Let's begin!
