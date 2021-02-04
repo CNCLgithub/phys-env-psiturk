@@ -180,16 +180,14 @@ function draw(duration) {
 }
 
 function show_boundary(spacebar) {
-	var video = document.getElementById('thisvideo');
+	var mov = document.getElementById('thisvideo');
+	
     // are you on a frame you've previously indicated is important?? 
-    if (spacebar.includes(Math.round(video.currentTime))) {
-    	video.style.borderColor = "MediumVioletRed";
-    	setTimeout(function(){
-    	video.style.borderColor = "transparent";
-  		},100);
+    if (spacebar.includes(mov.currentTime.toFixed(2))) {
+    	mov.style.borderColor = "MediumVioletRed";
     	//tempAlert('previous boundary',500)
     } else {
-    	video.style.borderColor = "transparent";
+    	mov.style.borderColor = "transparent";
     };
 }
 
@@ -219,6 +217,7 @@ class Page {
     this.reloadbtn = document.getElementById(RELOAD);
     this.spacebar = [];
     this.paused = [];
+    this.removed = [];
   }
 
   // Loads content to the page
@@ -244,7 +243,7 @@ class Page {
     this.addMedia();
   }
   
-  // Return the spacebar presses
+  // Return the key presses
   	get_spacebar() {
         return this.spacebar;
   }
@@ -252,6 +251,11 @@ class Page {
 // Return the pause information 
   get_paused() {
         return this.paused;
+  }
+    
+// Return the timepoints that we want to remove from the event list 
+  get_removed() {
+        return this.removed;
   }
   /************
    * Helpers  *
@@ -316,12 +320,13 @@ class Page {
     this.scale_region.innerHTML = "";
     this.response.innerHTML = "";
   }
-  
 
-  // plays movie with the ability to navigate through it and determine boundaries
+  // Plays movie with the ability to navigate through it and determine boundaries
   showMovie() {
 
 	var frameRate=30;
+	
+	// Functions to move forward and backward
 	function movForward() {
 	 	var mov = document.getElementById('thisvideo');
 		mov.currentTime = (mov.currentTime + 1/frameRate); // frames per sec is about 30
@@ -330,7 +335,6 @@ class Page {
       		mov.currentTime = 0;
         }    
 	}
-	
 	function movBackward() {
 	 	var mov = document.getElementById('thisvideo');
     	mov.currentTime =(mov.currentTime - 1/frameRate); // frames per sec is about 30
@@ -339,17 +343,24 @@ class Page {
       		mov.currentTime = 0;
     	}
 	}
-
+	
+	// Check if values in array equal the current time; if so, it will be filtered
+	//function checkTime(time) {
+	//	var mov = document.getElementById('thisvideo');
+  	//	return time !== mov.currentTime.toFixed(2);
+	//};
+	
 	var starttime = new Date().getTime();
 	var timer; // so that they can move forward and backwards
 	
     this.next.disabled = true;
     var sc = document.getElementById(MOVIESCREEN);
     var mov = document.getElementById('thisvideo');
+
 	
     let me = this;
 	
-	// adding spacebar handling after release
+	// Adding key code stuff
 	document.onkeyup = function(event){
 	
 		// if ENTER record the frame you are on 
@@ -357,25 +368,28 @@ class Page {
 			event.preventDefault();
 			
 			var time = new Date().getTime() - starttime;
-			if (time > 500) {
 
-				 // outline the video
-				draw(500)
-				 
-				 // save the time it is (rounded)
-                me.spacebar.push(Math.round(mov.currentTime)); 
+			// outline the video
+			draw(500)
+			
+			// save the time it is! if this is your first time
+			if (me.spacebar.includes(mov.currentTime.toFixed(2))) {
+				//me.spacebar = me.spacebar.filter(checkTime); if not, remove it from the list -- warning this messes up the correspondence with is_paused
+				me.removed.push(mov.currentTime.toFixed(2));
+        	} else {
+        		me.spacebar.push(mov.currentTime.toFixed(2)); 
+        	};
+        	
+            // tell us if they pressed while the video was paused or playing 
+            if (mov.paused) {
+                me.paused.push(1); 
+            } else {
+                me.paused.push(0); 
+            };
                 
-                // tell us if they pressed while the video was paused or playing 
-                if (mov.paused) {
-                	me.paused.push(1); 
-                } else {
-                	me.paused.push(0); 
-                };
-                
-                // enable next
-        		me.enableResponse();
-              }
-            } 
+            // enable next
+        	me.enableResponse();
+        }
         
         // if SPACE BAR play / pause
         else if (event.keyCode === 32) { 
@@ -394,6 +408,8 @@ class Page {
  			timer= null;
         	event.preventDefault();
         	movForward();
+        	
+        	show_boundary(me.spacebar); //check! 
         }
         
         // if LEFT move backward
@@ -402,6 +418,7 @@ class Page {
 			clearInterval(timer);
  			timer= null;
     		movBackward();
+    		show_boundary(me.spacebar); //check! 
     
   		} 
     };
@@ -428,10 +445,8 @@ class Page {
     
     mov.oncanplaythrough = function() {
       mov.pause(); //start out paused
+      
     };
-    
-    //show_boundary(me.spacebar)
-    
   }
   
   // plays movie automatically
@@ -547,10 +562,8 @@ class Page {
       mov.play();
     };
     
-    mov.onended = movOnEnd;
-    
+    mov.onended = movOnEnd; 
   }
-  
   
   
 // shows an image
@@ -611,24 +624,24 @@ var InstructionRunner = function(condlist) {
       "text", "", false
     ],
     
-    [
-    	"Press ENTER as soon as you see the yellow star!",
-      "calibration", "star_calibration.mp4", true
-    ],
-    
-    [
-      "Great! Now for the main task, you will be deciding when during videos event changes occur. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
-      "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can move forward in time (RIGHT ARROW KEY) and backward in time (LEFT ARROW KEY) to find where in the video you think there is an event change. Holding down the arrow keys moves the video faster.<br><br>"+
-      "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response. <br><br> " +
-      "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. <br><br> "+
-      "When you are ready to practice, press the NEXT button and the video will start automatically.",
-      "image", "keyboard_keys.png", false
-    ],
-    
-    [
-      "For every new video, you will first simply watch it. (The light blue border indicates that you will not be responding just yet).",
-      "movie_nopause", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
-    ],
+   //  [
+//     	"Press ENTER as soon as you see the yellow star!",
+//       "calibration", "star_calibration.mp4", true
+//     ],
+//     
+//     [
+//       "Great! Now for the main task, you will be deciding when during videos event changes occur. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
+//       "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can move forward in time (RIGHT ARROW KEY) and backward in time (LEFT ARROW KEY) to find where in the video you think there is an event change. Holding down the arrow keys moves the video faster.<br><br>"+
+//       "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response. <br><br> " +
+//       "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. <br><br> "+
+//       "When you are ready to practice, press the NEXT button and the video will start automatically.",
+//       "image", "keyboard_keys.png", false
+//     ],
+//     
+//     [
+//       "For every new video, you will first simply watch it. (The light blue border indicates that you will not be responding just yet).",
+//       "movie_nopause", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
+//     ],
     
     [
       "Then, you will be able to indicate your response. Press space bar to start the video and to pause it. Use the arrow keys to find where in the video it feels like there is an event change and press ENTER when you are happy with your decision. <br><br>" +
@@ -787,17 +800,18 @@ var Experiment = function(triallist) {
   };
   
 
-
   // Record the subject's response for a given trial.
   var register_response = function(trialPage, cIdx) {
   
     var spaces = trialPage.get_spacebar();
     var pauses = trialPage.get_paused();
+    var removed = trialPage.get_removed();
     
     psiTurk.recordTrialData({
       'TrialName': triallist[cIdx],
       'Boundaries': spaces,
       'Boundary_On_Pause': pauses,
+      'Removed_Presses': removed,
       'IsInstruction': false,
       'TrialOrder': cIdx
     });
