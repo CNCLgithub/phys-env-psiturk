@@ -252,11 +252,12 @@ class Page {
   get_paused() {
         return this.paused;
   }
-    
-// Return the timepoints that we want to remove from the event list 
+  
+  // Return the pause information 
   get_removed() {
         return this.removed;
   }
+
   /************
    * Helpers  *
    ***********/
@@ -324,7 +325,7 @@ class Page {
   // Plays movie with the ability to navigate through it and determine boundaries
   showMovie() {
 
-	var frameRate=30;
+	var frameRate=120;
 	
 	// Functions to move forward and backward
 	function movForward() {
@@ -372,10 +373,25 @@ class Page {
 			// outline the video
 			draw(500)
 			
-			// save the time it is! if this is your first time
+			
+			// remove the time if you are erasing your response
 			if (me.spacebar.includes(mov.currentTime.toFixed(2))) {
+				
 				//me.spacebar = me.spacebar.filter(checkTime); if not, remove it from the list -- warning this messes up the correspondence with is_paused
-				me.removed.push(mov.currentTime.toFixed(2));
+				
+				// find the index for it
+				let index = me.spacebar.findIndex( x => x === mov.currentTime.toFixed(2));
+				 
+				 // remove from both spacebar and paused
+				 if (index > -1) {
+  					me.spacebar.splice(index, 1);
+  					me.paused.splice(index, 1);
+				 }	
+				 		
+				// still record that this happened though
+				me.removed.push(mov.currentTime.toFixed(2)); 
+				
+			// save the time it is! if this is your first time	 
         	} else {
         		me.spacebar.push(mov.currentTime.toFixed(2)); 
         	};
@@ -389,7 +405,9 @@ class Page {
                 
             // enable next
         	me.enableResponse();
+        	//tempAlert(me.spacebar,500)
         }
+        
         
         // if SPACE BAR play / pause
         else if (event.keyCode === 32) { 
@@ -430,15 +448,15 @@ class Page {
         if (event.keyCode === 39) { 
         	event.preventDefault();
         	if(timer) return;
-        	timer=setInterval(movForward, 200) // lower the number to speed it up (but have more jumpiness / errors)
-        	
+        	timer=setInterval(movForward, 20) // lower the number to speed it up (but may have more jumpiness / errors)
+
         }
         
         // if LEFT move backward
 		else if (event.keyCode === 37) {
 			event.preventDefault();
 			if(timer) return;
-        	timer=setInterval(movBackward, 200)
+        	timer=setInterval(movBackward, 20)
 
   		} 
     };
@@ -624,28 +642,29 @@ var InstructionRunner = function(condlist) {
       "text", "", false
     ],
     
-   //  [
-//     	"Press ENTER as soon as you see the yellow star!",
-//       "calibration", "star_calibration.mp4", true
-//     ],
-//     
-//     [
-//       "Great! Now for the main task, you will be deciding when during videos event changes occur. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
-//       "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can move forward in time (RIGHT ARROW KEY) and backward in time (LEFT ARROW KEY) to find where in the video you think there is an event change. Holding down the arrow keys moves the video faster.<br><br>"+
-//       "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response. <br><br> " +
-//       "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. <br><br> "+
-//       "When you are ready to practice, press the NEXT button and the video will start automatically.",
-//       "image", "keyboard_keys.png", false
-//     ],
-//     
-//     [
-//       "For every new video, you will first simply watch it. (The light blue border indicates that you will not be responding just yet).",
-//       "movie_nopause", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
-//     ],
+    [
+    	"Press ENTER as soon as you see the yellow star!",
+      "calibration", "star_calibration.mp4", true
+    ],
+    
+    [
+      "Great! Now for the main task, you will be deciding when during videos event changes occur. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
+      "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can move forward in time (RIGHT ARROW KEY) and backward in time (LEFT ARROW KEY) to find where in the video you think there is an event change. Holding down the arrow keys moves the video faster.<br><br>"+
+      "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response. " +
+      "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. "+
+      "Note that when you navigate through the video, frames that you previously indicated were event changes will have a purple border. If you pause on a purple-bordered frame and then press ENTER, your previous response at that time point will be erased. <br><br>" +  
+      "When you are ready to practice, press the NEXT button and the video will start automatically.",
+      "image", "keyboard_keys.png", false
+    ],
+    
+    [
+      "For every new video, you will first simply watch it. (The light blue border indicates that you will not be responding just yet).",
+      "movie_nopause", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
+    ],
     
     [
       "Then, you will be able to indicate your response. Press space bar to start the video and to pause it. Use the arrow keys to find where in the video it feels like there is an event change and press ENTER when you are happy with your decision. <br><br>" +
-      "Space-bar: play/pause, Left arrow key: rewind, Right arrow key: fast forward, Enter: confirm response",
+      "Space-bar: play/pause, Left arrow key: rewind, Right arrow key: fast forward, Enter: confirm response (or delete response when border is purple)",
     "movie", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
@@ -780,7 +799,7 @@ var Experiment = function(triallist) {
     
     // If its an odd trial, indicate the response 
     else {
-    	var pg = new Page("Indicate event changes <br><br> "+ "Space-bar: play/pause, Left arrow key: back a frame, Right arrow key: forward a frame, Enter: confirm response", "movie", flnm, true);
+    	var pg = new Page("Indicate event changes <br><br> "+ "Space-bar: play/pause, Left arrow key: back a frame, Right arrow key: forward a frame, Enter: confirm response (or delete response when border is purple)", "movie", flnm, true);
     }
     
     // `Page` will record the subject responce when "next" is clicked
