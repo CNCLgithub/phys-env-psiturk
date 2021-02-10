@@ -788,17 +788,19 @@ var Experiment = function(triallist) {
     
     var flnm = triallist[curIdx];
     
-    show_progress(curIdx);
-    
     starttime = new Date().getTime();
     
     // If its an even number, just watch
     if (curIdx % 2 == 0) {
+    	var actual_trial = curIdx / 2
+    	show_progress(actual_trial);
     	var pg = new Page("Watch the video", "movie_nopause", flnm, true);
     } 
     
     // If its an odd trial, indicate the response 
     else {
+    	var actual_trial = (curIdx -1) / 2
+    	show_progress(actual_trial);
     	var pg = new Page("Indicate event changes <br><br> "+ "Space-bar: play/pause, Left arrow key: back a frame, Right arrow key: forward a frame, Enter: confirm response (or delete response when border is purple)", "movie", flnm, true);
     }
     
