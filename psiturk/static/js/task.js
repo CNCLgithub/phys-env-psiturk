@@ -520,7 +520,8 @@ class Page {
   }
   
   // calibration
-  calibrateDelay() {
+ /* 
+ calibrateDelay() {
 
 	var starttime = new Date().getTime();
 	
@@ -582,6 +583,7 @@ class Page {
     
     mov.onended = movOnEnd; 
   }
+ */
   
   
 // shows an image
@@ -636,23 +638,23 @@ var InstructionRunner = function(condlist) {
       "image", "objects.png", false
     ],
     
-    [
-      "Before we begin, we will need to test your reaction time. <br><br>On the next page, you will see a video that will flash a yellow star five times at random points in the video. <br><br>" +
-        "<b>Press ENTER as soon as you see the yellow star as quickly as possible.</b>",
-      "text", "", false
-    ],
+   // [
+  //    "Before we begin, we will need to test your reaction time. <br><br>On the next page, you will see a video that will flash a yellow star five times at random points in the video. <br><br>" +
+  //      "<b>Press ENTER as soon as you see the yellow star as quickly as possible.</b>",
+  //    "text", "", false
+  //  ],
+    
+  //  [
+  //  	"Press ENTER as soon as you see the yellow star!",
+  //    "calibration", "star_calibration.mp4", true
+   // ],
     
     [
-    	"Press ENTER as soon as you see the yellow star!",
-      "calibration", "star_calibration.mp4", true
-    ],
-    
-    [
-      "Great! Now for the main task, you will be deciding when during videos event changes occur. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
+      "For this study, you will be deciding when during videos event changes occur. For every video, you will first watch the video in full all the way from start to finish. This video will start automatically and cannot be paused. <br><br>" + 
       "You will then get to watch the video a second time. This time, you will be able to pause the video using the SPACE BAR and can move forward in time (RIGHT ARROW KEY) and backward in time (LEFT ARROW KEY) to find where in the video you think there is an event change. Holding down the arrow keys moves the video faster.<br><br>"+
       "When you decide when in the video the event change occurs, press ENTER. The border around the video will turn red to indicate that we have registered your response. " +
-      "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. "+
-      "Note that when you navigate through the video, frames that you previously indicated were event changes will have a purple border. If you pause on a purple-bordered frame and then press ENTER, your previous response at that time point will be erased. <br><br>" +  
+      "If you think there is more than one event change in the video, you can indicate more than one place in the video. Use the arrow keys to find the frame and press ENTER. <br><br>"+
+      "Note that when you navigate through the video, frames that you previously indicated were event changes will have a purple border. If you pause on a purple-bordered frame and then press ENTER, your previous response at that time point will be erased. (You will not see this purple frame if the video is playing or an arrow key is held down. Depending on your computer / browser resolution it may be difficult to find the purple frame, so try to use this sparingly). <br><br>" +  
       "When you are ready to practice, press the NEXT button and the video will start automatically.",
       "image", "keyboard_keys.png", false
     ],
