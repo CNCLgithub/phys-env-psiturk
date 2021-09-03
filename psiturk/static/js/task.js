@@ -157,47 +157,36 @@ function responseSlider() {
   return `<span id="qspan">How confident are you in your response?</span>` +
     `<div id="lab-div">` +
     `<div id="lab-left"><i>Not confident at all</i></div>` +
-    `<div id="lab-center"><i>Unsure</i></div>` +
+    `<div id="lab-center"><i>Somewhat confident</i></div>` +
     `<div id="lab-right"><i>Very confident</i></div>` +
     `</div>` +
     `<input id="response_slider" type="range" min="0" max="100" default="50" width="${PAGESIZE*1.05}px" disabled/>`
 };
-
-//temp alert
-function tempAlert(msg,duration) {
- var el = document.createElement("div");
- 
- 	el.setAttribute("style","position:absolute;top:20%;left:50%;background-color:red;");
- 	el.innerHTML = msg;
- 	
- 	setTimeout(function(){
-  	el.parentNode.removeChild(el);
- 	},duration);
- 	
- 	document.body.appendChild(el);
-}
-
-
-function draw(duration) {
-
-  var video = document.getElementById('thisvideo');
-  video.style.borderColor = "red";
-  //var x = document.createElement("CANVAS");
-  //var ctx = x.getContext("2d");
-  
-  //ctx.drawImage(video, 0, 0, video.videoWidth,video.videoHeight);
-  
-  // ctx.strokeStyle = "#FF0000";
-  // ctx.strokeRect(0,0,video.videoWidth,video.videoHeight);
-
-  setTimeout(function(){
-    video.style.borderColor = "transparent";
-  	//x.parentNode.removeChild(x);
-  	},duration);
     
-   // document.body.appendChild(x);
- 
+
+var choiceRegion = function () {
+    var choice_test =`<h4> Did you see a letter? <span style=\"color:blue;\"></span></h4>`+
+     `<ul style="list-style-type:none">`+ 
+        `<li id="e-choice">`+
+        `<input id="e-choice" type="radio" name="choice" value="1"/>` +
+        `<div class="check"></div>`+
+        `<label for="e-choice"><i>E</i></label>` +
+        `</li>` +
+        `<li id="f-choice">` +
+        `<input id="f-choice" type="radio"  name="choice" value="2"/>` +
+        `<div class="check"></div>` +
+        `<label for="f-choice"><i>F</i></label>` +    
+        `</li>` +
+        `<li id="no-choice">` +
+        `<input id="no-choice" type="radio"  name="choice" value="0"/>` +
+        `<div class="check"></div>` +
+        `<label for="no-choice"><i>No letter</i></label>` +    
+        `</li>` +
+        `</ul>`;
+    return choice_test;
 }
+
+
 
 
 class Page {
@@ -254,14 +243,10 @@ class Page {
   // Returns the placement of each color scaled from [0, 1]
   retrieveResponse() {
     var confidence = document.getElementById("response_slider");
-    var rep = [confidence.value]
+    var choice = $('input[name=clothchoice]:checked', `#${RES_SLIDER}`).val();  
+    var rep = [choice, confidence.value]
         
     return rep
-  }
-  
-  // Return the spacebar presses
-  	get_spacebar() {
-        return this.spacebar;
   }
   
   
@@ -312,9 +297,14 @@ class Page {
     }
   }
   
-addResponse() {
+  addResponse() {
     this.response.innerHTML = responseSlider();
   }
+  
+  addChoice() {
+    this.choice.innerHTML = choiceRegion();
+  }
+
 
   // The form will automatically enable the next button
   enableResponse() {
@@ -332,6 +322,7 @@ addResponse() {
   clearResponse() {
     this.scale_region.innerHTML = "";
     this.response.innerHTML = "";
+    this.choice.innerHTML = "";
   }
   
 
@@ -346,27 +337,6 @@ addResponse() {
 
     let me = this;
 
-	// adding spacebar handling after release
-	document.onkeyup = function(event){
-		if (event.keyCode === 32) {
-			event.preventDefault();
-			
-			var time = new Date().getTime() - starttime;
-			if (time > 500 && me.next.disabled === true) {
-				// tell them
-				//tempAlert('space',500)
-
-				 // outline the video
-				draw(500)
-				 
-				 // save the data
-				 me.spacebar.push(time); 
-                    
-              }
-            }
-    };
-    
-
     // The "next" botton will only activate after recording a response
     if (this.showResponse) {
       this.next.style.display = "none";
@@ -374,6 +344,7 @@ addResponse() {
         if (me.mask) {
           cut2black();
         }
+        me.addChoice();
         me.addResponse();
         me.enableResponse();
       };
@@ -392,16 +363,14 @@ addResponse() {
     };
     
     mov.onended = movOnEnd;
-    
-    
+
   }
   
-  
-
 // shows an image
   showImage() {
     if (this.showResponse) {
       this.next.disabled = true;
+      this.addChoice();
       this.addResponse();
       this.enableResponse();
     } else {
@@ -445,32 +414,30 @@ var InstructionRunner = function(condlist) {
   
   
     [
-      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate detect whether or not the video has a distortion in it (in the form of a momentary pause), and your confidence in that decision." +
-      "There will be a short 3-second countdown before the video begins.<br><br>" +
+      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate whether or not you saw a letter (either E or F) flash somewhere on the screen, and your confidence in that decision." +
         "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
       "image", "objects.png", false
     ],
     
     [
-      "We will first show you two videos as examples and for practice. Your task when watching these videos is to <b>press a space bar when you see a short pause in the video</b>. " + 
-      "When you press the space bar, the border around the video will turn red to indicate that we have registered your response. <br><br> " +
-      "Note that not every video will have a pause, in which case you should not press the spacebar.",
+      "We will first show you two videos as examples and for practice. Your task is to pay close attention to the video and then indicate afterwards if you saw a letter flash on the screen.</b> " + 
+      "Note that not every video will have a letter flash on the screen.",
       "", "", false
     ],
     
     
     [
-      "Here is an example of a dynamic scene in which there is no pause.<br>",
-      "movie", "example_collision_collision4312.mp4", false // ADD THE EXAMPLE VIDEO
+      "Here is an example of a dynamic scene in which no letter flashes.<br>",
+      "movie", "example_containment_topple_collision.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
-      "Here is an example of a dynamic scene in which there is a pause (watch carefully, and practice pressing the space bar)<br>",
-    "movie", "example_collision_collision4312_mint_125ms_8.mp4", false // ADD THE EXAMPLE VIDEO
+      "Here is an example of a dynamic scene in which a letter does flash (watch carefully)<br>",
+    "movie", "example_containment_topple_collision_T1.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
     [
-      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. You should only press the spacebar when you think you see a short pause in the video. After the video ends, you will be able to record how confident you are in your response. To submit your answer, you will drag a slider ranging from 'Not very confident' to 'Very confident' that there was or was not a distortion.<br>" +
+      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. After the video ends, you will be able to record your response and how confident you are in it. You will drag a slider ranging from 'Not very confident' to 'Very confident' in your answer.<br>" +
         "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted your confidence response.",
       "", "", false
     ],
@@ -594,7 +561,7 @@ var Experiment = function(triallist) {
     show_progress(curIdx);
     
     starttime = new Date().getTime();
-    var pg = new Page("Press the spacebar when a pause occurs", "movie", flnm, true);
+    var pg = new Page("Pay attention for an 'E' or 'F' flashing on the screen", "movie", flnm, true);
     
     // `Page` will record the subject responce when "next" is clicked
     // and go to the next trial
@@ -620,12 +587,11 @@ var Experiment = function(triallist) {
   
     //var rt = new Date().getTime() - starttime;
     var rep = trialPage.retrieveResponse();
-    var spaces = trialPage.get_spacebar();
     
     psiTurk.recordTrialData({
       'TrialName': triallist[cIdx],
-      'Spacebar': spaces,
-      'Confidence': rep[0],
+      'Choice': rep[0],
+      'Confidence': rep[1],
       //'ReactionTime': rt,
       'IsInstruction': false,
       'TrialOrder': cIdx

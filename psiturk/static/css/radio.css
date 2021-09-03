@@ -64,7 +64,7 @@
 /* Individual Controls
  ------------------------------------------------------------- */
 .radio {
-  display: inline-block;
+  display: table-cell;
   padding-right: 20px;
   font-size: 18px;
   line-height: 49px;

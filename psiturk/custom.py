@@ -162,16 +162,16 @@ import re
 #         abort(404) 
 
 
-@custom_code.route('/create_tasklist', methods=['POST'])
-def create_tasklist():
-	conditions=np.loadtxt('static/data/all_condition_lists.txt',dtype=str)
-	data=conditions[cond,:]
-
-	with open('static/data/condlist.json','w') as outfile:
-		json.dump([list(data)],outfile,indent=4)
- 
-		outfile.close()
-        
-        
-        
-create_tasklist()
+# @custom_code.route('/create_tasklist', methods=['POST'])
+# def create_tasklist():
+# 	conditions=np.loadtxt('static/data/all_condition_lists.txt',dtype=str)
+# 	data=conditions[cond,:]
+# 
+# 	with open('static/data/condlist.json','w') as outfile:
+# 		json.dump([list(data)],outfile,indent=4)
+#  
+# 		outfile.close()
+#         
+#         
+#         
+# create_tasklist()
