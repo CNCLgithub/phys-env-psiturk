@@ -507,15 +507,15 @@ var InstructionRunner = function(condlist) {
   
   
     [
-      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate whether or not you saw a letter (either <b>E</b> or <b>F</b>) flash somewhere on the screen, and your confidence in that decision." +
+      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate whether or not you saw a letter (either <b>E</b> or <b>F</b>) flash somewhere on the screen, and your confidence in that decision. " +
         "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
       "image", "objects.png", false
     ],
     
     [
-      "We will first show you two videos as examples and for practice. Your task is to pay close attention to the video and to press the <b>E</b> or <b>F</b> key to indicate when you saw a letter flash on the screen."+ 
-      "When you press the  <b>E</b> or <b>F</b> key, a red border will flash around the video to indicate that your response was recorded.<br>"+
-      "If no letter flashes, please do not press anything, and simply wait until the video ends. Afterwards, you will indicate your confidence in detecting the letter or not. <br> " + 
+      "We will first show you two videos as examples and for practice. Your task is to pay close attention to the video and to press the <b>E</b> or <b>F</b> key to indicate when you saw a letter flash on the screen. "+ 
+      "When you press the  <b>E</b> or <b>F</b> key, a red border will flash around the video to indicate that your response was recorded. <br><br>"+
+      "If no letter flashes, please do not press anything, and simply wait until the video ends. Afterwards, you will indicate your confidence in detecting the letter or not.  <br><br> " + 
       "Note that not every video will have a letter flash on the screen.",
       "image", "spatial_probe_keyboard.png", false
     ],
@@ -531,7 +531,7 @@ var InstructionRunner = function(condlist) {
     ],
     
     [
-      "Great! Click next to see an example of a dynamic scene in which a letter (<b>E</b>) does flash. Watch carefully to see the frame that looks like the image below." +
+      "Great! Click next to see an example of a dynamic scene in which a letter (<b>E</b>) does flash. Watch carefully to see the frame that looks like the image below. " +
       "When you see the letter <b>E</b>, press the <b>E</b> key on the keyboard as practice.",
       "image", "example_spatial_probe_screenshot.png", false
     ],
