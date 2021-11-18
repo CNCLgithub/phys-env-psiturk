@@ -162,29 +162,51 @@ function responseSlider() {
     `</div>` +
     `<input id="response_slider" type="range" min="0" max="100" default="50" width="${PAGESIZE*1.05}px" disabled/>`
 };
-    
 
-var choiceRegion = function () {
-    var choice_test =`<h4> Did you see a letter? <span style=\"color:blue;\"></span></h4>`+
-     `<ul style="list-style-type:none">`+ 
-        `<li id="e-choice">`+
-        `<input id="e-choice" type="radio" name="choice" value="1"/>` +
-        `<div class="check"></div>`+
-        `<label for="e-choice"><i>E</i></label>` +
-        `</li>` +
-        `<li id="f-choice">` +
-        `<input id="f-choice" type="radio"  name="choice" value="2"/>` +
-        `<div class="check"></div>` +
-        `<label for="f-choice"><i>F</i></label>` +    
-        `</li>` +
-        `<li id="no-choice">` +
-        `<input id="no-choice" type="radio"  name="choice" value="0"/>` +
-        `<div class="check"></div>` +
-        `<label for="no-choice"><i>No letter</i></label>` +    
-        `</li>` +
-        `</ul>`;
-    return choice_test;
+// collect response time during video and indicate when a key is press 
+function draw(duration) {
+
+  var video = document.getElementById('thisvideo');
+  video.style.borderColor = "red";
+  //var x = document.createElement("CANVAS");
+  //var ctx = x.getContext("2d");
+  
+  //ctx.drawImage(video, 0, 0, video.videoWidth,video.videoHeight);
+  
+  // ctx.strokeStyle = "#FF0000";
+  // ctx.strokeRect(0,0,video.videoWidth,video.videoHeight);
+
+  setTimeout(function(){
+    video.style.borderColor = "transparent";
+  	//x.parentNode.removeChild(x);
+  	},duration);
+    
+   // document.body.appendChild(x);
+ 
 }
+    
+// Collect choice after watching video
+// var choiceRegion = function () {
+//     var choice_test =`<h4> Did you see a letter? <span style=\"color:blue;\"></span></h4>`+
+//      `<ul style="list-style-type:none">`+ 
+//         `<li id="e-choice">`+
+//         `<input id="e-choice" type="radio" name="choice" value="1"/>` +
+//         `<div class="check"></div>`+
+//         `<label for="e-choice"><i>E</i></label>` +
+//         `</li>` +
+//         `<li id="f-choice">` +
+//         `<input id="f-choice" type="radio"  name="choice" value="2"/>` +
+//         `<div class="check"></div>` +
+//         `<label for="f-choice"><i>F</i></label>` +    
+//         `</li>` +
+//         `<li id="no-choice">` +
+//         `<input id="no-choice" type="radio"  name="choice" value="0"/>` +
+//         `<div class="check"></div>` +
+//         `<label for="no-choice"><i>No letter</i></label>` +    
+//         `</li>` +
+//         `</ul>`;
+//     return choice_test;
+// }
 
 
 
@@ -213,7 +235,8 @@ class Page {
     this.next.disable = true;
     this.mvsc = document.getElementById(MOVIESCREEN);
     this.reloadbtn = document.getElementById(RELOAD);
-    this.spacebar = [];
+    this.ekey = [];
+    this.fkey = [];
   }
 
   // Loads content to the page
@@ -243,10 +266,15 @@ class Page {
   // Returns the placement of each color scaled from [0, 1]
   retrieveResponse() {
     var confidence = document.getElementById("response_slider");
-    var choice = $('input[name=clothchoice]:checked', `#${RES_SLIDER}`).val();  
-    var rep = [choice, confidence.value]
-        
+    //var choice = $('input[name=clothchoice]:checked', `#${RES_SLIDER}`).val();  
+    //var rep = [choice, confidence.value]
+    rep = [confidence.value]     
     return rep
+  }
+  
+    // Return the spacebar presses
+  	get_keypresses() {
+        return [this.ekey,this.fkey];
   }
   
   
@@ -301,9 +329,9 @@ class Page {
     this.response.innerHTML = responseSlider();
   }
   
-  addChoice() {
-    this.choice.innerHTML = choiceRegion();
-  }
+  //addChoice() {
+  //  this.choice.innerHTML = choiceRegion();
+  //}
 
 
   // The form will automatically enable the next button
@@ -322,7 +350,7 @@ class Page {
   clearResponse() {
     this.scale_region.innerHTML = "";
     this.response.innerHTML = "";
-    this.choice.innerHTML = "";
+    //this.choice.innerHTML = "";
   }
   
 
@@ -337,6 +365,41 @@ class Page {
 
     let me = this;
 
+	// add timing for any key presses that were made 
+	document.onkeyup = function(event){
+		if (event.keyCode === 69) {
+			event.preventDefault();
+			
+			var time = new Date().getTime() - starttime;
+			if (time > 500 && me.next.disabled === true) {
+				// tell them
+				//tempAlert('space',500)
+
+				 // outline the video
+				draw(500)
+				 
+				 // save the data
+				 me.ekey.push(time); 
+                    
+              }
+        } else	if (event.keyCode === 70) {
+			event.preventDefault();
+			
+			var time = new Date().getTime() - starttime;
+			if (time > 500 && me.next.disabled === true) {
+				// tell them
+				//tempAlert('space',500)
+
+				 // outline the video
+				draw(500)
+				 
+				 // save the data
+				 me.fkey.push(time); 
+                    
+              }
+        }
+    };
+
     // The "next" botton will only activate after recording a response
     if (this.showResponse) {
       this.next.style.display = "none";
@@ -344,7 +407,7 @@ class Page {
         if (me.mask) {
           cut2black();
         }
-        me.addChoice();
+        //me.addChoice();
         me.addResponse();
         me.enableResponse();
       };
@@ -370,7 +433,7 @@ class Page {
   showImage() {
     if (this.showResponse) {
       this.next.disabled = true;
-      this.addChoice();
+      //this.addChoice();
       this.addResponse();
       this.enableResponse();
     } else {
@@ -414,23 +477,32 @@ var InstructionRunner = function(condlist) {
   
   
     [
-      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate whether or not you saw a letter (either E or F) flash somewhere on the screen, and your confidence in that decision." +
+      "In this study, your main task will be to watch a series of short videos. You will be asked to indicate whether or not you saw a letter (either <b>E</b> or <b>F</b>) flash somewhere on the screen, and your confidence in that decision." +
         "In these videos, you will see simple objects such as balls, planks, floors, walls, tracks, and cups.",
       "image", "objects.png", false
     ],
     
     [
-      "We will first show you two videos as examples and for practice. Your task is to pay close attention to the video and then indicate afterwards if you saw a letter flash on the screen.</b> " + 
+      "We will first show you two videos as examples and for practice. Your task is to pay close attention to the video and to press the E or F key to indicate when you saw a letter flash on the screen."+ 
+      "If no letter flashes, you will wait until the video ends. Afterwards, you will indicate your confidnence. </b> " + 
       "Note that not every video will have a letter flash on the screen.",
       "", "", false
     ],
     
+    [
+      "Click next to see an example of a dynamic scene in which no letter flashes.<br>",
+      "", "", false
+    ],
     
     [
       "Here is an example of a dynamic scene in which no letter flashes.<br>",
       "movie", "example_containment_topple_collision.mp4", false // ADD THE EXAMPLE VIDEO
     ],
     
+    [
+      "Great! Click next to see an example of a dynamic scene in which a letter (<b>E</b>) does flash. Watch carefully to see the frame that looks like the image below.<br>",
+      "image", "example_spatial_probe_screenshot.png", false
+    ],
     [
       "Here is an example of a dynamic scene in which a letter does flash (watch carefully)<br>",
     "movie", "example_containment_topple_collision_T1.mp4", false // ADD THE EXAMPLE VIDEO
@@ -561,7 +633,7 @@ var Experiment = function(triallist) {
     show_progress(curIdx);
     
     starttime = new Date().getTime();
-    var pg = new Page("Pay attention for an 'E' or 'F' flashing on the screen", "movie", flnm, true);
+    var pg = new Page("Pay attention for an <b>'E'</b> or <b>'F'</b> flashing on the screen", "movie", flnm, true);
     
     // `Page` will record the subject responce when "next" is clicked
     // and go to the next trial
@@ -587,12 +659,14 @@ var Experiment = function(triallist) {
   
     //var rt = new Date().getTime() - starttime;
     var rep = trialPage.retrieveResponse();
+    var keys = trialPage.get_keypresses();
     
     psiTurk.recordTrialData({
       'TrialName': triallist[cIdx],
-      'Choice': rep[0],
-      'Confidence': rep[1],
-      //'ReactionTime': rt,
+      //'Choice': rep[0],
+      'Confidence': rep[0],
+      'E_Key':keys[0],
+      'F_Key':keys[0],
       'IsInstruction': false,
       'TrialOrder': cIdx
     });
