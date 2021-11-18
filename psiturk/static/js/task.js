@@ -123,7 +123,7 @@ var make_mov = function(movname, is_intro, has_ctr) {
   var fmovnm = "static/data/movies/" + movname;
   var foggnm = fmovnm.substr(0, fmovnm.lastIndexOf('.')) + ".ogg";
   var ret = //`<span id="qspan">Press spacebar when you see a video distortion</span>` +
-   `<video id="thisvideo" style="border: solid transparent; margin-top: ${PAGESIZE*.2}px; margin-bottom: ${PAGESIZE*.2}px;" class="${mcl}\${ctr}" width="${PAGESIZE*1.25}px">` +
+   `<video id="thisvideo" style="border: solid transparent; margin-top: ${PAGESIZE*.2}px; margin-bottom: ${PAGESIZE*.2}px;" class="${mcl}\${ctr}" width="${PAGESIZE*1.05}px">` +
       `<source src="${fmovnm}" type="video/mp4">` +
       `<source src="${foggnm}" type="video/ogg">` +
       `Your browser does not support HTML5 mp4 video.</video>`;
@@ -209,6 +209,31 @@ function draw(duration) {
 // }
 
 
+// open the video full screen
+function toggleFullScreen(elem) {
+
+// open the full screen
+	if (!document.fullscreenElement) {
+  		if (elem.requestFullscreen) {
+    		elem.requestFullscreen();
+  		} else if (elem.webkitRequestFullscreen) { /* Safari */
+    		elem.webkitRequestFullscreen();
+  		} else if (elem.msRequestFullscreen) { /* IE11 */
+    		elem.msRequestFullscreen();
+    	}
+  	} else 
+  	// close the full screen
+  	 {
+  		if (elem.exitFullscreen) {
+    		elem.exitFullscreen();
+  		} else if (elem.webkitExitFullscreen) { /* Safari */
+    		elem.webkitExitFullscreen();
+  		} else if (elem.msExitFullscreen) { /* IE11 */
+    		elem.msExitFullscreen();
+		}
+	}	
+}
+
 
 
 class Page {
@@ -267,14 +292,13 @@ class Page {
   retrieveResponse() {
     var confidence = document.getElementById("response_slider");
     //var choice = $('input[name=clothchoice]:checked', `#${RES_SLIDER}`).val();  
-    //var rep = [choice, confidence.value]
-    rep = [confidence.value]     
-    return rep
+    //var rep = [choice, confidence.value]   
+    return confidence.value
   }
   
     // Return the spacebar presses
   	get_keypresses() {
-        return [this.ekey,this.fkey];
+        return [this.ekey, this.fkey];
   }
   
   
@@ -365,6 +389,7 @@ class Page {
 
     let me = this;
 
+	
 	// add timing for any key presses that were made 
 	document.onkeyup = function(event){
 		if (event.keyCode === 69) {
@@ -407,6 +432,7 @@ class Page {
         if (me.mask) {
           cut2black();
         }
+        toggleFullScreen(mov)
         //me.addChoice();
         me.addResponse();
         me.enableResponse();
@@ -419,14 +445,18 @@ class Page {
           cut2black();
         }
         me.next.disabled = false;
+       toggleFullScreen(mov)
+       
       };
     }
     mov.oncanplaythrough = function() {
+      toggleFullScreen(mov)
+      mov.controls=false;
       mov.play();
     };
     
     mov.onended = movOnEnd;
-
+    
   }
   
 // shows an image
@@ -483,14 +513,15 @@ var InstructionRunner = function(condlist) {
     ],
     
     [
-      "We will first show you two videos as examples and for practice. Your task is to pay close attention to the video and to press the E or F key to indicate when you saw a letter flash on the screen."+ 
-      "If no letter flashes, you will wait until the video ends. Afterwards, you will indicate your confidnence. </b> " + 
+      "We will first show you two videos as examples and for practice. Your task is to pay close attention to the video and to press the <b>E</b> or <b>F</b> key to indicate when you saw a letter flash on the screen."+ 
+      "When you press the  <b>E</b> or <b>F</b> key, a red border will flash around the video to indicate that your response was recorded.<br>"+
+      "If no letter flashes, please do not press anything, and simply wait until the video ends. Afterwards, you will indicate your confidence in detecting the letter or not. <br> " + 
       "Note that not every video will have a letter flash on the screen.",
-      "", "", false
+      "image", "spatial_probe_keyboard.png", false
     ],
     
     [
-      "Click next to see an example of a dynamic scene in which no letter flashes.<br>",
+      "Click next to see an example of a dynamic scene in which <b>no letter flashes</b>. <br>",
       "", "", false
     ],
     
@@ -500,7 +531,8 @@ var InstructionRunner = function(condlist) {
     ],
     
     [
-      "Great! Click next to see an example of a dynamic scene in which a letter (<b>E</b>) does flash. Watch carefully to see the frame that looks like the image below.<br>",
+      "Great! Click next to see an example of a dynamic scene in which a letter (<b>E</b>) does flash. Watch carefully to see the frame that looks like the image below." +
+      "When you see the letter <b>E</b>, press the <b>E</b> key on the keyboard as practice.",
       "image", "example_spatial_probe_screenshot.png", false
     ],
     [
@@ -509,7 +541,7 @@ var InstructionRunner = function(condlist) {
     ],
     
     [
-      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. After the video ends, you will be able to record your response and how confident you are in it. You will drag a slider ranging from 'Not very confident' to 'Very confident' in your answer.<br>" +
+      "These videos will start automatically and will only play once. You will not be able to pause or rewind the videos. During the video, please indicate if you saw either an <b>E</b> or <b>F</b> by pressing the appropriate key. After the video ends, you will be able to record your how confident you are in it. You will drag a slider ranging from 'Not very confident' to 'Very confident' in your answer.<br>" +
         "<hr /><i>Note</i>: You will <b>NOT</b> be able to progress to the next trial until you have submitted your confidence response.",
       "", "", false
     ],
@@ -641,7 +673,6 @@ var Experiment = function(triallist) {
     pg.showPage(
       function() {
       	
-      	
         register_response(pg, curIdx);
         
         // Clears slider from screen
@@ -664,9 +695,9 @@ var Experiment = function(triallist) {
     psiTurk.recordTrialData({
       'TrialName': triallist[cIdx],
       //'Choice': rep[0],
-      'Confidence': rep[0],
+      'Confidence': rep,
       'E_Key':keys[0],
-      'F_Key':keys[0],
+      'F_Key':keys[1],
       'IsInstruction': false,
       'TrialOrder': cIdx
     });

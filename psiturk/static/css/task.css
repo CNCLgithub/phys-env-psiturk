@@ -2,6 +2,9 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto);
 @import url(http://fonts.googleapis.com/css?family=Exo+2:200,300,400);
 
+video::-webkit-media-controls {
+  display:none !important;
+}
 
 h1.questionnaireheader {
         font-family: "Exo 2";
