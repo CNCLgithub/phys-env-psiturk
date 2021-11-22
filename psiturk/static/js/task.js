@@ -18,11 +18,11 @@ var RELOAD = "reloadbutton";
 var RES_SLIDER = "trialRes";
 var INS_INSTRUCTS = "instruct";
 var INS_HEADER = "instr_header";
-var PAGESIZE = 500;
+var PAGESIZE = window.screen.availWidth*0.5; // Set the page size (really, the size of images and videos) to be a portion of the width of the screen
 
 var IMG_TIME = 100 // time to display images in ms
 
-var SCALE_COMPLETE = false; // users do not need to repeat scaling
+var SCALE_COMPLETE = false; // users do not need to repeat scaling (though we aren't using scaling in this experiment) 
 
 var PROLIFIC_ID = "";
 
@@ -123,7 +123,7 @@ var make_mov = function(movname, is_intro, has_ctr) {
   var fmovnm = "static/data/movies/" + movname;
   var foggnm = fmovnm.substr(0, fmovnm.lastIndexOf('.')) + ".ogg";
   var ret = //`<span id="qspan">Press spacebar when you see a video distortion</span>` +
-   `<video id="thisvideo" style="border: solid transparent; margin-top: ${PAGESIZE*.2}px; margin-bottom: ${PAGESIZE*.2}px;" class="${mcl}\${ctr}" width="${PAGESIZE*1.05}px">` +
+   `<video id="thisvideo" style="border: solid transparent; margin-top: ${PAGESIZE*.05}px; margin-bottom: ${PAGESIZE*.05}px;" class="${mcl}\${ctr}" width="${PAGESIZE}px">` +
       `<source src="${fmovnm}" type="video/mp4">` +
       `<source src="${foggnm}" type="video/ogg">` +
       `Your browser does not support HTML5 mp4 video.</video>`;
@@ -160,7 +160,7 @@ function responseSlider() {
     `<div id="lab-center"><i>Somewhat confident</i></div>` +
     `<div id="lab-right"><i>Very confident</i></div>` +
     `</div>` +
-    `<input id="response_slider" type="range" min="0" max="100" default="50" width="${PAGESIZE*1.05}px" disabled/>`
+    `<input id="response_slider" type="range" min="0" max="100" default="50" width="${PAGESIZE*1}px" disabled/>`
 };
 
 // collect response time during video and indicate when a key is press 
@@ -221,17 +221,17 @@ function toggleFullScreen(elem) {
   		} else if (elem.msRequestFullscreen) { /* IE11 */
     		elem.msRequestFullscreen();
     	}
-  	} else 
-  	// close the full screen
-  	 {
-  		if (elem.exitFullscreen) {
-    		elem.exitFullscreen();
-  		} else if (elem.webkitExitFullscreen) { /* Safari */
-    		elem.webkitExitFullscreen();
-  		} else if (elem.msExitFullscreen) { /* IE11 */
-    		elem.msExitFullscreen();
-		}
-	}	
+  	// } else 
+//   	// close the full screen
+//   	 {
+//   		if (elem.exitFullscreen) {
+//     		elem.exitFullscreen();
+//   		} else if (elem.webkitExitFullscreen) { /* Safari */
+//     		elem.webkitExitFullscreen();
+//   		} else if (elem.msExitFullscreen) { /* IE11 */
+//     		elem.msExitFullscreen();
+// 		}
+ 	}	
 }
 
 
@@ -333,7 +333,7 @@ class Page {
   scalePage() {
     if (SCALE_COMPLETE) {
       this.mvsc.innerHTML = "";
-      this.instruct.innerHTML = "You have already scaled your monitor";
+      this.instruct.innerHTML = "Your screen has already been scaled.";
       this.showImage();
 
     } else {
@@ -432,7 +432,6 @@ class Page {
         if (me.mask) {
           cut2black();
         }
-        toggleFullScreen(mov)
         //me.addChoice();
         me.addResponse();
         me.enableResponse();
@@ -445,12 +444,10 @@ class Page {
           cut2black();
         }
         me.next.disabled = false;
-       toggleFullScreen(mov)
        
       };
     }
     mov.oncanplaythrough = function() {
-      toggleFullScreen(mov)
       mov.controls=false;
       mov.play();
     };
@@ -494,10 +491,10 @@ var InstructionRunner = function(condlist) {
   var instructions = [
   
       [
-      "<b>Before we begin, follow the instructions below to setup your display.</b><br><hr />" +
-        "<p>Please sit comfortably in front of you monitor and outstretch your arm holding a credit card (or a similary sized ID card). <br>" +
-        "<p>Adjust the size of the image using the slider until its <strong>width</strong> matches the width of your credit card (or ID card).",
-      "scale", "generic_cc.png", false
+      "This experiment needs to be run in Full-screen. If at any point you need to exit Full-screen, you can always press the ESC key. "+
+       "Note, however, that every time you press NEXT to go to a new page, the experiment will return to Full-screen. " + 
+       "Please stay in Full-screen on experiment trials.<br><br> Click NEXT to continue. " +
+       "", "", false
     ],
   
     [
@@ -535,6 +532,7 @@ var InstructionRunner = function(condlist) {
       "When you see the letter <b>E</b>, press the <b>E</b> key on the keyboard as practice.",
       "image", "example_spatial_probe_screenshot.png", false
     ],
+    
     [
       "Here is an example of a dynamic scene in which a letter does flash (watch carefully)<br>",
     "movie", "example_containment_topple_collision_T1.mp4", false // ADD THE EXAMPLE VIDEO
@@ -563,6 +561,7 @@ var InstructionRunner = function(condlist) {
     if (i < ninstruct) {
       var page = new Page(...instructions[i]);
       page.showPage(function() {
+        toggleFullScreen(document.body) 
         page.clearResponse();
         do_page(i + 1);
       });
@@ -651,7 +650,9 @@ var Experiment = function(triallist) {
   var prog = document.getElementById(PROGRESS);
   
   var starttime = -1;
-
+  
+  toggleFullScreen(document.body)   
+  
   // uses `Page` to show a single trial
   var runTrial = function(curIdx) {
   
@@ -672,7 +673,9 @@ var Experiment = function(triallist) {
     
     pg.showPage(
       function() {
-      	
+      	// make it go full screen if it isn't already 
+  		toggleFullScreen(document.body)   
+        
         register_response(pg, curIdx);
         
         // Clears slider from screen

@@ -6,6 +6,11 @@ video::-webkit-media-controls {
   display:none !important;
 }
 
+::backdrop
+{
+    background-color: white;
+}
+
 h1.questionnaireheader {
         font-family: "Exo 2";
         font-size: 20pt;
