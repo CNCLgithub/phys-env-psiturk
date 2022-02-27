@@ -43,16 +43,15 @@ var instructionPages = [ // add as a list as many pages as you like
 ];
 
 
-
 /****************
  * Prolific ID  *
  ****************/
 
 var ProlificID = function(condlist) {
     while (true) {
-        PROLIFIC_ID = prompt("Please enter Prolific ID to proceed:");
+        PROLIFIC_ID = prompt("Please enter your SONA subject poolID to proceed:");
         // a small check on length
-        if (PROLIFIC_ID.length == 24) {
+        if (PROLIFIC_ID.length > 2) {
             psiTurk.recordTrialData({
                 'prolific_id': PROLIFIC_ID,
             });
@@ -60,7 +59,7 @@ var ProlificID = function(condlist) {
             InstructionRunner(condlist);
             return;
         }
-        alert("Make sure you enter the Prolific ID correctly, please try again.");
+        alert("Make sure you enter the SONA ID correctly, please try again.");
     }
 }
 
@@ -498,7 +497,7 @@ var InstructionRunner = function(condlist) {
     ],
   
     [
-      "Please maintain this arm-length distance from your monitor for the duration of this experiment (30-45 minutes).",
+      "Please maintain an arm-length distance from your monitor for the duration of this experiment (45-60 minutes).",
       "text", "", false
     ],
   
