@@ -26,10 +26,7 @@ myauth = PsiTurkAuthorization(config)  # if you want to add a password protect r
 # explore the Blueprint
 custom_code = Blueprint('custom_code', __name__, template_folder='templates', static_folder='static')
 
-cond=1
-
-num_exemplar=2
-num_probes=10
+cond=0
 
 ###########################################################
 #  serving warm, fresh, & sweet custom, user-provided routes
@@ -175,3 +172,24 @@ import re
 #         
 #         
 # create_tasklist()
+
+
+@custom_code.route('/create_tasklist', methods=['POST'])
+def create_tasklist():
+    conditions=np.loadtxt('static/data/all_condition_lists.txt',dtype=str)
+    data=list(conditions[cond,:]) # get the test videos
+
+    base_videos=np.loadtxt('static/data/base_videos.txt',dtype=str)
+
+    # randomly choose videos for the "catch" (no probe) trials
+    np.random.shuffle(base_videos)
+    for vid in base_videos[:6]:
+        data.extend([vid+'.mp4'])
+    
+    # save it out 
+    with open('static/data/condlist.json','w') as outfile:
+        json.dump([list(data)],outfile,indent=4)
+        
+        outfile.close()
+         
+create_tasklist()
