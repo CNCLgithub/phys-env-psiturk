@@ -26,6 +26,7 @@ myauth = PsiTurkAuthorization(config)  # if you want to add a password protect r
 # explore the Blueprint
 custom_code = Blueprint('custom_code', __name__, template_folder='templates', static_folder='static')
 
+# Choose the condition that this subject will do 
 cond=0
 
 ###########################################################
